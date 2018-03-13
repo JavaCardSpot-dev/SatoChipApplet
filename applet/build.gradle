@@ -68,13 +68,13 @@ javacard {
         cap {
             packageName 'applet'
             version '0.1'
-            aid '01:02:03:04:05:06:07:08:09'
+            aid '53:61:74:6f:43:68:69:70'
             output 'applet.cap'
 
             //noinspection GroovyAssignabilityCheck
             applet {
                 className 'CardEdge'
-                aid '01:02:03:04:05:06:07:08:09:01:02'
+                aid '53:61:74:6f:43:68:69:70:00'
             }
 
             //noinspection GroovyAssignabilityCheck
