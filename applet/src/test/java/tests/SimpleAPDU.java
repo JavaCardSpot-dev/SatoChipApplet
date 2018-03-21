@@ -42,6 +42,31 @@ public class SimpleAPDU {
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
         // Running on physical card
+        //runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+
+        // Running in the simulator
+        runCfg.setAppletToSimulate(CardEdge.class)
+                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+                .setbReuploadApplet(true)
+                .setInstallData(new byte[8]);
+
+        System.out.print("Connecting to card...");
+        if (!cardMngr.Connect(runCfg)) {
+            return null;
+        }
+        System.out.println(" Done.");
+
+        final ResponseAPDU response = sendCommandWithInitSequence(cardMngr, STR_APDU_DUMMY, null);
+        System.out.println(response);
+
+        return response;
+    }
+
+    public static ResponseAPDU demoSingleCommand2() throws Exception {
+        final CardManager cardMngr = new CardManager(true, APPLET_AID_BYTE);
+        final RunConfig runCfg = RunConfig.getDefaultConfig();
+
+        // Running on physical card
         runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
 
         // Running in the simulator
