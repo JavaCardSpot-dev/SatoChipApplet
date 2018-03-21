@@ -80,14 +80,8 @@ public class SimpleAPDU {
             return null;
         }
         System.out.println(" Done.");
-
-        //final ResponseAPDU response = sendCommandWithInitSequence(cardMngr, STR_APDU_DUMMY, null);
-        //System.out.println(response);
-
-        byte[] pin_init = {(byte) 'M', (byte) 'u', (byte) 's', (byte) 'c', (byte) 'l', (byte) 'e', (byte) '0', (byte) '0'};
-        System.out.println( pin_init.length );
-        System.out.println(Arrays.toString(pin_init));
-
+		
+		//Won't be used, just a reference what the inside of setup data looks like
         byte[] data = {
                 //Initial pin length + initial pin
                 (byte) 8, (byte) 'M', (byte) 'u', (byte) 's', (byte) 'c', (byte) 'l', (byte) 'e', (byte) '0', (byte) '0',
@@ -103,7 +97,10 @@ public class SimpleAPDU {
                 //pin length + pin
                 (byte) 4, (byte) 'M', (byte) 'M', (byte) 'M', (byte) 'M',
                 //ublk pin length + ublk pin
-                (byte) 4, (byte) 'M', (byte) 'M', (byte) 'M', (byte) 'M'
+                (byte) 4, (byte) 'M', (byte) 'M', (byte) 'M', (byte) 'M',
+				//mem_size 2bytes
+				(byte)(10>>8), (byte)(10&0x00ff),
+				(byte)(10>>8), (byte)(10&0x00ff),
         };
         System.out.println("Data sent: " + Arrays.toString(data));
         final ResponseAPDU response = cardMngr.transmit(new CommandAPDU(0xB0, 0x2A, 0x00, 0x00, data, 0x00));
