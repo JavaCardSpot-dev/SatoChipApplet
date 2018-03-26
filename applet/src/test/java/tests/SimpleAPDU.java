@@ -30,7 +30,7 @@ public class SimpleAPDU {
      */
     public static void main(String[] args) {
         try {
-            //demoSingleCommand();
+            // demoSingleCommand2();
             setupCommand();
         } catch (Exception ex) {
             System.out.println("Exception : " + ex);
@@ -117,7 +117,7 @@ public class SimpleAPDU {
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
         // Running on physical card
-        // runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+//        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
 
         // Running in the simulator
         runCfg.setAppletToSimulate(CardEdge.class)
@@ -133,7 +133,8 @@ public class SimpleAPDU {
 
         byte pin_tries_0 = 0x10;
         byte ublk_tries_0 = 0x10;
-        byte[] pin_0 = {0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38};
+//        byte[] pin_0 = {0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38};
+        byte[] pin_0 = {0x4D, 0x75, 0x73, 0x63, 0x6C, 0x65, 0x30, 0x30}; //same as default
         byte[] ublk_0 = {0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38};
         byte pin_tries_1 = 0x10;
         byte ublk_tries_1 = 0x10;

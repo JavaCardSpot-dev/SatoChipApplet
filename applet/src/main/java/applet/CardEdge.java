@@ -353,7 +353,9 @@ public class CardEdge extends javacard.framework.Applet implements ExtendedLengt
 
     // JC API 2.2.2 does not define these constants:
     private final static byte ALG_ECDSA_SHA_256 = (byte) 33;
+    private static final byte ALG_RSA_SHA_ISO9796_MR = 30;
     private final static byte ALG_EC_SVDP_DH_PLAIN = (byte) 3; //https://javacard.kenai.com/javadocs/connected/javacard/security/KeyAgreement.html#ALG_EC_SVDP_DH_PLAIN
+    private final static byte ALG_EC_SVDP_DH = (byte) 1; //https://javacard.kenai.com/javadocs/connected/javacard/security/KeyAgreement.html#ALG_EC_SVDP_DH_PLAIN
     private final static short LENGTH_EC_FP_256 = (short) 256;
 
     /****************************************
@@ -899,8 +901,10 @@ public class CardEdge extends javacard.framework.Applet implements ExtendedLengt
 
         // shared cryptographic objects
         randomData = null; // Will be created on demand when needed
-        keyAgreement = KeyAgreement.getInstance(ALG_EC_SVDP_DH_PLAIN, false);
-        sigECDSA = Signature.getInstance(ALG_ECDSA_SHA_256, false);
+//        keyAgreement = KeyAgreement.getInstance(ALG_EC_SVDP_DH_PLAIN, false);
+        keyAgreement = KeyAgreement.getInstance(ALG_EC_SVDP_DH, false);
+//        sigECDSA = Signature.getInstance(ALG_ECDSA_SHA_256, false);
+        sigECDSA = Signature.getInstance(ALG_RSA_SHA_ISO9796_MR, false);
         aes128 = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_ECB_NOPAD, false);
 
         // HD wallet
