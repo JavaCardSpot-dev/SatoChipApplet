@@ -40,4 +40,20 @@ public class AppletTest {
         Assert.assertEquals(0x6e00, responseAPDU.getSW());
         Assert.assertNotNull(responseAPDU.getBytes());
     }
+
+    @Test
+    public void setup() throws Exception {
+        final ResponseAPDU responseAPDU = SimpleAPDU.setupCommand();
+        Assert.assertNotNull(responseAPDU);
+        Assert.assertEquals(0x9000, responseAPDU.getSW());
+        Assert.assertNotNull(responseAPDU.getBytes());
+    }
+
+    @Test
+    public void cardPIN() throws Exception {
+        final ResponseAPDU responseAPDU = SimpleAPDU.testCardPIN();
+        Assert.assertNotNull(responseAPDU);
+        Assert.assertEquals(0x9000, responseAPDU.getSW());
+        Assert.assertNotNull(responseAPDU.getBytes());
+    }
 }
