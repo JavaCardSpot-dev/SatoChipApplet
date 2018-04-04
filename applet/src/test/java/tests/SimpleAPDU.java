@@ -159,6 +159,10 @@ public class SimpleAPDU {
         byte[] data = SatoChipAppletTest.createSetupData();
         ResponseAPDU response = cardMngr.transmit(new CommandAPDU(0xB0, 0x2A, 0x00, 0x00, data, 0x00));
         System.out.println(response);
+        if (response.getSW() != 0x9000) {
+            System.out.println("Error: setup card!");
+            return response;
+        }
 
         byte[] pin = {0x4D, 0x75, 0x73, 0x63, 0x6C, 0x65, 0x30, 0x30};
         byte[] ublk = {0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38};
