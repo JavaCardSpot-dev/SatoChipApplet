@@ -400,7 +400,9 @@ public class CardEdge extends javacard.framework.Applet implements ExtendedLengt
     private short logged_ids;
 
     /* For the setup function - should only be called once */
-    private boolean setupDone = false;
+    private final static byte BYTE_FALSE = (byte) 0xA5; //10100101
+    private final static byte BYTE_TRUE = (byte) 0x5A;  //01011010
+    private byte setupDone = BYTE_FALSE;
     private byte create_object_ACL;
     private byte create_key_ACL;
     private byte create_pin_ACL;
@@ -520,9 +522,11 @@ public class CardEdge extends javacard.framework.Applet implements ExtendedLengt
          */
 
         // Destroy the IO objects (if they exist)
-        if (setupDone) {
-            om.destroyObject(IN_OBJECT_CLA, IN_OBJECT_ID, true);
-            om.destroyObject(OUT_OBJECT_CLA, OUT_OBJECT_ID, true);
+        if (setupDone != BYTE_FALSE) {
+            if (setupDone == BYTE_TRUE) {
+                om.destroyObject(IN_OBJECT_CLA, IN_OBJECT_ID, true);
+                om.destroyObject(OUT_OBJECT_CLA, OUT_OBJECT_ID, true);
+            }
         }
         LogOutAll();
         return true;
@@ -530,9 +534,11 @@ public class CardEdge extends javacard.framework.Applet implements ExtendedLengt
 
     public void deselect() {
         // Destroy the IO objects (if they exist)
-        if (setupDone) {
-            om.destroyObject(IN_OBJECT_CLA, IN_OBJECT_ID, true);
-            om.destroyObject(OUT_OBJECT_CLA, OUT_OBJECT_ID, true);
+        if (setupDone != BYTE_FALSE) {
+            if (setupDone == BYTE_TRUE) {
+				om.destroyObject(IN_OBJECT_CLA, IN_OBJECT_ID, true);
+				om.destroyObject(OUT_OBJECT_CLA, OUT_OBJECT_ID, true);
+            }
         }
         LogOutAll();
     }
@@ -563,10 +569,10 @@ public class CardEdge extends javacard.framework.Applet implements ExtendedLengt
             ISOException.throwIt(ISO7816.SW_CLA_NOT_SUPPORTED);
 
         byte ins = buffer[ISO7816.OFFSET_INS];
-        if (!setupDone && (ins != INS_SETUP))
+        if ((setupDone == BYTE_FALSE) && (ins != INS_SETUP))
             ISOException.throwIt(SW_SETUP_NOT_DONE);
 
-        if (setupDone && (ins == INS_SETUP))
+        if ((setupDone == BYTE_TRUE) && (ins == INS_SETUP))
             ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
 
         switch (ins) {
@@ -950,7 +956,7 @@ public class CardEdge extends javacard.framework.Applet implements ExtendedLengt
             }
         }
 
-        setupDone = true;
+        setupDone = BYTE_TRUE;
     }
 
     /********** UTILITY FUNCTIONS **********/
