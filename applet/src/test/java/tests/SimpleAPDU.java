@@ -296,97 +296,85 @@ public class SimpleAPDU {
 
         // 2. Verify pin
         System.out.println("cardVerifyPIN");
-        byte[] verifData= new byte[pin.length];
-        short verifBase=0;
-        for (int i=0; i<pin.length; i++){
-            verifData[verifBase++]=pin[i];
+        byte[] verifData = new byte[pin.length];
+        short verifBase = 0;
+        for (int i = 0; i < pin.length; i++) {
+            verifData[verifBase++] = pin[i];
         }
         response = cardMngr.transmit(new CommandAPDU(0xB0, 0x42, 0x00, 0x00, verifData, 0x00));
         System.out.println(response);
 
         // 3. create 1024 size object
+        System.out.println("cardCreateObject");
         final int objSize = 1024;
-        byte[] objData= new byte[objSize];
-        Arrays.fill(objData, (byte)0x00);
+        byte[] objData = new byte[objSize];
+        Arrays.fill(objData, (byte) 0x00);
 
-        byte cla= (byte) 0xB0;
-        byte ins= (byte) 0x5A;
-        byte p1= 0x00;
-        byte p2= 0x00;
-        byte[] data= new byte[14];
-        byte le= 0x00;
-        byte[] objACL= {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        byte cla = (byte) 0xB0;
+        byte ins = (byte) 0x5A;
+        byte p1 = 0x00;
+        byte p2 = 0x00;
+        byte[] data = new byte[14];
+        byte le = 0x00;
+        byte[] objACL = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
         int objId = 123456;
 
-        int offset=0;
-        data[offset++]= (byte)((objId>>>24) & 0xff);
-        data[offset++]= (byte)((objId>>>16) & 0xff);
-        data[offset++]= (byte)((objId>>>8) & 0xff);
-        data[offset++]= (byte)((objId) & 0xff);
-        data[offset++]= (byte)((objSize>>>24) & 0xff);
-        data[offset++]= (byte)((objSize>>>16) & 0xff);
-        data[offset++]= (byte)((objSize>>>8) & 0xff);
-        data[offset++]= (byte)((objSize) & 0xff);
-        System.arraycopy(objACL, 0, data, 8, objACL.length);
+        {
+            int offset = 0;
+            data[offset++] = (byte) ((objId >>> 24) & 0xff);
+            data[offset++] = (byte) ((objId >>> 16) & 0xff);
+            data[offset++] = (byte) ((objId >>> 8) & 0xff);
+            data[offset++] = (byte) ((objId) & 0xff);
+            data[offset++] = (byte) ((objSize >>> 24) & 0xff);
+            data[offset++] = (byte) ((objSize >>> 16) & 0xff);
+            data[offset++] = (byte) ((objSize >>> 8) & 0xff);
+            data[offset++] = (byte) ((objSize) & 0xff);
+            System.arraycopy(objACL, 0, data, 8, objACL.length);
 
-        response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+            response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+        }
 
-        // 3. try create pin + ublk
-//        System.out.println("cardCreatePIN");
-//        byte[] pinData = new byte[1+pin.length+1+ublk.length];
-//        short pinBase=0;
-//        pinData[pinBase++]=(byte)pin.length;
-//        for (int i=0; i<pin.length; i++){
-//            pinData[pinBase++]=pin[i];
-//        }
-//        pinData[pinBase++]=(byte)ublk.length;
-//        for (int i=0; i<ublk.length; i++){
-//            pinData[pinBase++]=ublk[i];
-//        }
-//        try {
-//            response = cardMngr.transmit(new CommandAPDU(0xB0, 0x40, 2, 3, pinData, 0x00));
-//            System.out.println(response);
-//        } catch (Exception ex) {
-//            if (response.getSW()== 0x9C10)
-//                System.out.println("PIN exists already!");
-//            else
-//                throw ex;
-//        }
-//
-//        // 4. Change pin
-//        System.out.println("cardChangePIN");
-//        byte[] new_pin = {33,33,33,33};
-//        byte[] changeData= new byte[1+pin.length+1+new_pin.length];
-//        short changeBase=0;
-//        changeData[changeBase++]=(byte)pin.length;
-//        for (int i=0; i<pin.length; i++){
-//            changeData[changeBase++]=pin[i];
-//        }
-//        changeData[changeBase++]=(byte)new_pin.length;
-//        for (int i=0; i<new_pin.length; i++){
-//            changeData[changeBase++]=new_pin[i];
-//        }
-//        response = cardMngr.transmit(new CommandAPDU(0xB0, 0x44, 2, 0x00, changeData, 0x00));
-//        System.out.println(response);
-//        if (response.getSW() != 0x9000) {
-//            System.out.println("Error: change pin!");
-//            return response;
-//        }
-//
-//        // 5. Verify new pin
-//        System.out.println("cardVerifyPIN (new PIN)");
-//        byte[] verif2Data= new byte[pin.length];
-//        short verif2Base=0;
-//        for (int i=0; i<pin.length; i++){
-//            verif2Data[verif2Base++]=pin[i];
-//        }
-//        response = cardMngr.transmit(new CommandAPDU(0xB0, 0x42, 0x00, 0x00, verif2Data, 0x00));
-//        System.out.println(response);
-//        if (response.getSW() != 0x9000) {
-//            System.out.println("Error: verify new pin!");
-//            return response;
-//        }
+        // 4. write to object, write 200B of data
+        System.out.println("cardWriteObject");
+        byte[] objWriteData = new byte[200];
+        Arrays.fill(objWriteData, (byte) 0x01);
+
+        ins = 0x54; // INS for write
+        data = new byte[4 + 4 + 1 + objWriteData.length];
+
+        {
+            int offset = 0;
+            data[offset++] = (byte) ((objId >>> 24) & 0xff);
+            data[offset++] = (byte) ((objId >>> 16) & 0xff);
+            data[offset++] = (byte) ((objId >>> 8) & 0xff);
+            data[offset++] = (byte) ((objId) & 0xff);
+            data[offset++] = (byte) ((0 >>> 24) & 0xff);
+            data[offset++] = (byte) ((0 >>> 16) & 0xff);
+            data[offset++] = (byte) ((0 >>> 8) & 0xff);
+            data[offset++] = (byte) ((0) & 0xff);
+            data[offset++] = (byte) objWriteData.length;
+            System.arraycopy(objWriteData, 0, data, offset, objWriteData.length);
+
+            response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+        }
+
+        // 5. delete object with id objId
+        System.out.println("cardDeleteObject");
+        ins = 0x52;
+        p2 = (byte) 0x01;   // secure erasure
+
+        data = new byte[4];
+
+        {
+            int offset = 0;
+            data[offset++] = (byte) ((objId >>> 24) & 0xff);
+            data[offset++] = (byte) ((objId >>> 16) & 0xff);
+            data[offset++] = (byte) ((objId >>> 8) & 0xff);
+            data[offset++] = (byte) ((objId) & 0xff);
+
+            response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+        }
 
         return response;
     }
