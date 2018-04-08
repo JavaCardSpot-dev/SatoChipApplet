@@ -81,7 +81,7 @@ public class SimpleAPDU {
             return null;
         }
         System.out.println(" Done.");
-		
+
 		//Won't be used, just a reference what the inside of setup data looks like
         byte[] data = {
                 //Initial pin length + initial pin
@@ -260,6 +260,133 @@ public class SimpleAPDU {
             System.out.println("Error: verify back pin!");
             return response;
         }
+
+        return response;
+    }
+
+    public static ResponseAPDU testObjectManager() throws Exception {
+        final CardManager cardMngr = new CardManager(true, APPLET_AID_BYTE);
+        final RunConfig runCfg = RunConfig.getDefaultConfig();
+
+        // Running on physical card
+        // runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+
+        // Running in the simulator
+        runCfg.setAppletToSimulate(CardEdge.class)
+                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+                .setbReuploadApplet(true)
+                .setInstallData(new byte[8]);
+
+        System.out.print("Connecting to card...");
+        if (!cardMngr.Connect(runCfg)) {
+            return null;
+        }
+        System.out.println(" Done.");
+
+        // 1. Setup data
+        byte[] setupData = SatoChipAppletTest.createSetupData();
+        ResponseAPDU response = cardMngr.transmit(new CommandAPDU(0xB0, 0x2A, 0x00, 0x00, setupData, 0x00));
+        System.out.println(response);
+        if (response.getSW() != 0x9000) {
+            System.out.println("Error: setup card!");
+            return response;
+        }
+
+        byte[] pin = {0x4D, 0x75, 0x73, 0x63, 0x6C, 0x65, 0x30, 0x30};
+
+        // 2. Verify pin
+        System.out.println("cardVerifyPIN");
+        byte[] verifData= new byte[pin.length];
+        short verifBase=0;
+        for (int i=0; i<pin.length; i++){
+            verifData[verifBase++]=pin[i];
+        }
+        response = cardMngr.transmit(new CommandAPDU(0xB0, 0x42, 0x00, 0x00, verifData, 0x00));
+        System.out.println(response);
+
+        // 3. create 1024 size object
+        final int objSize = 1024;
+        byte[] objData= new byte[objSize];
+        Arrays.fill(objData, (byte)0x00);
+
+        byte cla= (byte) 0xB0;
+        byte ins= (byte) 0x5A;
+        byte p1= 0x00;
+        byte p2= 0x00;
+        byte[] data= new byte[14];
+        byte le= 0x00;
+        byte[] objACL= {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        int objId = 123456;
+
+        int offset=0;
+        data[offset++]= (byte)((objId>>>24) & 0xff);
+        data[offset++]= (byte)((objId>>>16) & 0xff);
+        data[offset++]= (byte)((objId>>>8) & 0xff);
+        data[offset++]= (byte)((objId) & 0xff);
+        data[offset++]= (byte)((objSize>>>24) & 0xff);
+        data[offset++]= (byte)((objSize>>>16) & 0xff);
+        data[offset++]= (byte)((objSize>>>8) & 0xff);
+        data[offset++]= (byte)((objSize) & 0xff);
+        System.arraycopy(objACL, 0, data, 8, objACL.length);
+
+        response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, 0x00));
+
+        // 3. try create pin + ublk
+//        System.out.println("cardCreatePIN");
+//        byte[] pinData = new byte[1+pin.length+1+ublk.length];
+//        short pinBase=0;
+//        pinData[pinBase++]=(byte)pin.length;
+//        for (int i=0; i<pin.length; i++){
+//            pinData[pinBase++]=pin[i];
+//        }
+//        pinData[pinBase++]=(byte)ublk.length;
+//        for (int i=0; i<ublk.length; i++){
+//            pinData[pinBase++]=ublk[i];
+//        }
+//        try {
+//            response = cardMngr.transmit(new CommandAPDU(0xB0, 0x40, 2, 3, pinData, 0x00));
+//            System.out.println(response);
+//        } catch (Exception ex) {
+//            if (response.getSW()== 0x9C10)
+//                System.out.println("PIN exists already!");
+//            else
+//                throw ex;
+//        }
+//
+//        // 4. Change pin
+//        System.out.println("cardChangePIN");
+//        byte[] new_pin = {33,33,33,33};
+//        byte[] changeData= new byte[1+pin.length+1+new_pin.length];
+//        short changeBase=0;
+//        changeData[changeBase++]=(byte)pin.length;
+//        for (int i=0; i<pin.length; i++){
+//            changeData[changeBase++]=pin[i];
+//        }
+//        changeData[changeBase++]=(byte)new_pin.length;
+//        for (int i=0; i<new_pin.length; i++){
+//            changeData[changeBase++]=new_pin[i];
+//        }
+//        response = cardMngr.transmit(new CommandAPDU(0xB0, 0x44, 2, 0x00, changeData, 0x00));
+//        System.out.println(response);
+//        if (response.getSW() != 0x9000) {
+//            System.out.println("Error: change pin!");
+//            return response;
+//        }
+//
+//        // 5. Verify new pin
+//        System.out.println("cardVerifyPIN (new PIN)");
+//        byte[] verif2Data= new byte[pin.length];
+//        short verif2Base=0;
+//        for (int i=0; i<pin.length; i++){
+//            verif2Data[verif2Base++]=pin[i];
+//        }
+//        response = cardMngr.transmit(new CommandAPDU(0xB0, 0x42, 0x00, 0x00, verif2Data, 0x00));
+//        System.out.println(response);
+//        if (response.getSW() != 0x9000) {
+//            System.out.println("Error: verify new pin!");
+//            return response;
+//        }
 
         return response;
     }

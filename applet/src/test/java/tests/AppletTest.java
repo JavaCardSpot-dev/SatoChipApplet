@@ -32,15 +32,6 @@ public class AppletTest {
     public void tearDownMethod() throws Exception {
     }
 
-    // Example test
-    @Test
-    public void hello() throws Exception {
-        final ResponseAPDU responseAPDU = SimpleAPDU.demoSingleCommand();
-        Assert.assertNotNull(responseAPDU);
-        Assert.assertEquals(0x6e00, responseAPDU.getSW());
-        Assert.assertNotNull(responseAPDU.getBytes());
-    }
-
     @Test
     public void setup() throws Exception {
         final ResponseAPDU responseAPDU = SimpleAPDU.setupCommand();
@@ -52,6 +43,14 @@ public class AppletTest {
     @Test
     public void cardPIN() throws Exception {
         final ResponseAPDU responseAPDU = SimpleAPDU.testCardPIN();
+        Assert.assertNotNull(responseAPDU);
+        Assert.assertEquals(0x9000, responseAPDU.getSW());
+        Assert.assertNotNull(responseAPDU.getBytes());
+    }
+
+    @Test
+    public void createObject() throws Exception {
+        final ResponseAPDU responseAPDU = SimpleAPDU.testObjectManager();
         Assert.assertNotNull(responseAPDU);
         Assert.assertEquals(0x9000, responseAPDU.getSW());
         Assert.assertNotNull(responseAPDU.getBytes());
