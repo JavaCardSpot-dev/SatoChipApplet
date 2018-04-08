@@ -330,7 +330,7 @@ public class SimpleAPDU {
         data[offset++]= (byte)((objSize) & 0xff);
         System.arraycopy(objACL, 0, data, 8, objACL.length);
 
-        response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, 0x00));
+        response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
 
         // 3. try create pin + ublk
 //        System.out.println("cardCreatePIN");
