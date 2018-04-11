@@ -488,7 +488,77 @@ public class CardEdge extends javacard.framework.Applet implements ExtendedLengt
      ****************************************/
 
     private CardEdge(byte[] bArray, short bOffset, byte bLength) {
-        // FIXED: something should be done already here, not only with setup APDU
+        keys = new Key[MAX_NUM_KEYS];
+        keyACLs = new byte[(short) (MAX_NUM_KEYS * KEY_ACL_SIZE)];
+        keyTries = new byte[MAX_NUM_KEYS];
+        for (byte i = (byte) 0; i < MAX_NUM_KEYS; i++)
+            keyTries[i] = MAX_KEY_TRIES;
+        keyPairs = new KeyPair[MAX_NUM_KEYS];
+        ciphers = new Cipher[MAX_NUM_KEYS];
+        signatures = new Signature[MAX_NUM_KEYS];
+        ciph_dirs = new byte[MAX_NUM_KEYS];
+        for (byte i = (byte) 0; i < MAX_NUM_KEYS; i++)
+            ciph_dirs[i] = (byte) 0xFF;
+
+        logged_ids = 0x00; // No identities logged in
+        //getChallengeDone = false; // No GetChallenge() issued so far
+
+        STD_PUBLIC_ACL = new byte[KEY_ACL_SIZE];
+        for (byte i = (byte) 0; i < KEY_ACL_SIZE; i += (short) 2)
+            Util.setShort(STD_PUBLIC_ACL, i, (short) 0x0000);
+
+        // Initialize the extended APDU buffer
+        try {
+            // Try to allocate the extended APDU buffer on RAM memory
+            recvBuffer = JCSystem.makeTransientByteArray(EXT_APDU_BUFFER_SIZE, JCSystem.CLEAR_ON_DESELECT);
+        } catch (SystemException e) {
+            // Allocate the extended APDU buffer on EEPROM memory
+            // This is the fallback method, but its usage is really not
+            // recommended as after ~ 100000 writes it will kill the EEPROM cells...
+            recvBuffer = new byte[EXT_APDU_BUFFER_SIZE];
+        }
+        // temporary buffer
+        try {
+            tmpBuffer = JCSystem.makeTransientByteArray(TMP_BUFFER_SIZE, JCSystem.CLEAR_ON_DESELECT);
+        } catch (SystemException e) {
+            tmpBuffer = new byte[TMP_BUFFER_SIZE];
+        }
+
+        // shared cryptographic objects
+        randomData = null; // Will be created on demand when needed
+        keyAgreement = KeyAgreement.getInstance(ALG_EC_SVDP_DH_PLAIN, false);
+        sigECDSA = Signature.getInstance(ALG_ECDSA_SHA_256, false);
+        aes128 = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_ECB_NOPAD, false);
+
+        // HD wallet
+        Sha512.init();
+        HmacSha512.init(tmpBuffer);
+        EccComputation.init(tmpBuffer);
+        // bip32 material
+        bip32_seeded = false;
+        bip32_master_compbyte = 0x04;
+        bip32_masterkey = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_256, false);
+        bip32_masterchaincode = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_256, false);
+        bip32_encryptkey = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_128, false);
+        bip32_masterACL = new byte[KEY_ACL_SIZE];
+        bip32_extendedACL = new byte[KEY_ACL_SIZE];
+        // object containing the current extended key
+        bip32_extendedkey = (ECPrivateKey) KeyBuilder.buildKey(KeyBuilder.TYPE_EC_FP_PRIVATE, LENGTH_EC_FP_256, false);
+        Secp256k1.setCommonCurveParameters(bip32_extendedkey);
+        // key used to authenticate sensitive data from applet
+        bip32_authentikey = (ECPrivateKey) KeyBuilder.buildKey(KeyBuilder.TYPE_EC_FP_PRIVATE, LENGTH_EC_FP_256, false);
+        Secp256k1.setCommonCurveParameters(bip32_authentikey);
+        // key used to recover public key from private
+        bip32_pubkey = (ECPublicKey) KeyBuilder.buildKey(KeyBuilder.TYPE_EC_FP_PUBLIC, LENGTH_EC_FP_256, false);
+        Secp256k1.setCommonCurveParameters(bip32_pubkey);
+
+        // message signing
+        sha256 = MessageDigest.getInstance(MessageDigest.ALG_SHA_256, false);
+
+        // Transaction signing
+        Transaction.init();
+        HmacSha160.init(tmpBuffer);
+        transactionData = new byte[OFFSET_TRANSACTION_SIZE];
 
         /* If init pin code does not satisfy policies, internal error */
         if (!CheckPINPolicy(PIN_INIT_VALUE, (short) 0, (byte) PIN_INIT_VALUE.length))
@@ -866,78 +936,6 @@ public class CardEdge extends javacard.framework.Applet implements ExtendedLengt
         om = new ObjectManager(mem);
         bip32_mem = new MemoryManager(secmem_size);
         bip32_om = new ObjectManager(bip32_mem);
-
-        keys = new Key[MAX_NUM_KEYS];
-        keyACLs = new byte[(short) (MAX_NUM_KEYS * KEY_ACL_SIZE)];
-        keyTries = new byte[MAX_NUM_KEYS];
-        for (byte i = (byte) 0; i < MAX_NUM_KEYS; i++)
-            keyTries[i] = MAX_KEY_TRIES;
-        keyPairs = new KeyPair[MAX_NUM_KEYS];
-        ciphers = new Cipher[MAX_NUM_KEYS];
-        signatures = new Signature[MAX_NUM_KEYS];
-        ciph_dirs = new byte[MAX_NUM_KEYS];
-        for (byte i = (byte) 0; i < MAX_NUM_KEYS; i++)
-            ciph_dirs[i] = (byte) 0xFF;
-
-        logged_ids = 0x00; // No identities logged in
-        //getChallengeDone = false; // No GetChallenge() issued so far
-
-        STD_PUBLIC_ACL = new byte[KEY_ACL_SIZE];
-        for (byte i = (byte) 0; i < KEY_ACL_SIZE; i += (short) 2)
-            Util.setShort(STD_PUBLIC_ACL, i, (short) 0x0000);
-
-        // Initialize the extended APDU buffer
-        try {
-            // Try to allocate the extended APDU buffer on RAM memory
-            recvBuffer = JCSystem.makeTransientByteArray(EXT_APDU_BUFFER_SIZE, JCSystem.CLEAR_ON_DESELECT);
-        } catch (SystemException e) {
-            // Allocate the extended APDU buffer on EEPROM memory
-            // This is the fallback method, but its usage is really not
-            // recommended as after ~ 100000 writes it will kill the EEPROM cells...
-            recvBuffer = new byte[EXT_APDU_BUFFER_SIZE];
-        }
-        // temporary buffer
-        try {
-            tmpBuffer = JCSystem.makeTransientByteArray(TMP_BUFFER_SIZE, JCSystem.CLEAR_ON_DESELECT);
-        } catch (SystemException e) {
-            tmpBuffer = new byte[TMP_BUFFER_SIZE];
-        }
-
-        // shared cryptographic objects
-        randomData = null; // Will be created on demand when needed
-        keyAgreement = KeyAgreement.getInstance(ALG_EC_SVDP_DH_PLAIN, false);
-        sigECDSA = Signature.getInstance(ALG_ECDSA_SHA_256, false);
-        aes128 = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_ECB_NOPAD, false);
-
-        // HD wallet
-        Sha512.init();
-        HmacSha512.init(tmpBuffer);
-        EccComputation.init(tmpBuffer);
-        // bip32 material
-        bip32_seeded = false;
-        bip32_master_compbyte = 0x04;
-        bip32_masterkey = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_256, false);
-        bip32_masterchaincode = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_256, false);
-        bip32_encryptkey = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_128, false);
-        bip32_masterACL = new byte[KEY_ACL_SIZE];
-        bip32_extendedACL = new byte[KEY_ACL_SIZE];
-        // object containing the current extended key
-        bip32_extendedkey = (ECPrivateKey) KeyBuilder.buildKey(KeyBuilder.TYPE_EC_FP_PRIVATE, LENGTH_EC_FP_256, false);
-        Secp256k1.setCommonCurveParameters(bip32_extendedkey);
-        // key used to authenticate sensitive data from applet
-        bip32_authentikey = (ECPrivateKey) KeyBuilder.buildKey(KeyBuilder.TYPE_EC_FP_PRIVATE, LENGTH_EC_FP_256, false);
-        Secp256k1.setCommonCurveParameters(bip32_authentikey);
-        // key used to recover public key from private
-        bip32_pubkey = (ECPublicKey) KeyBuilder.buildKey(KeyBuilder.TYPE_EC_FP_PUBLIC, LENGTH_EC_FP_256, false);
-        Secp256k1.setCommonCurveParameters(bip32_pubkey);
-
-        // message signing
-        sha256 = MessageDigest.getInstance(MessageDigest.ALG_SHA_256, false);
-
-        // Transaction signing
-        Transaction.init();
-        HmacSha160.init(tmpBuffer);
-        transactionData = new byte[OFFSET_TRANSACTION_SIZE];
 
         // parse options
         option_flags = 0;
