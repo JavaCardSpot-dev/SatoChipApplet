@@ -3395,6 +3395,10 @@ public class CardEdge extends javacard.framework.Applet implements ExtendedLengt
                 apdu.setOutgoingAndSend((short) 0, sign_size);
 
                 break;
+                
+            default:
+                //SW_UNSPECIFIED_ERROR, since this shoudn´t normally happen
+                ISOException.throwIt(SW_UNSPECIFIED_ERROR);
         }
     }
 
