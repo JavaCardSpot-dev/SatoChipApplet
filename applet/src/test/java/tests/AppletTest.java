@@ -101,4 +101,12 @@ public class AppletTest {
 
         assertArrayEquals(recoveredkey, authentikey);
     }
+
+    @Test
+    public void CardImportKey() throws Exception {
+        final ResponseAPDU responseAPDU = SimpleAPDU.testCardImportKey();
+        Assert.assertNotNull(responseAPDU);
+        Assert.assertEquals(0x9000, responseAPDU.getSW());
+        Assert.assertNotNull(responseAPDU.getBytes());
+    }
 }

@@ -14,8 +14,10 @@ import java.util.Arrays;
 
 import javax.xml.bind.DatatypeConverter;
 
+import com.google.bitcoin.core.ECKey;
 import com.google.bitcoin.crypto.DeterministicKey;
 
+import static SatoChipClient.CardDataParser.toHexString;
 import static org.junit.Assert.assertArrayEquals;
 
 /**
@@ -42,7 +44,8 @@ public class SimpleAPDU {
             // testCardPIN();
             // testCardGetStatus();
             // testCardBip32ImportSeed();
-            testCardBip32GetAuthentiKey();
+            // testCardBip32GetAuthentiKey();
+            testCardImportKey();
         } catch (Exception ex) {
             System.out.println("Exception : " + ex);
         }
@@ -557,7 +560,7 @@ public class SimpleAPDU {
             System.out.println("Create authentikey failed");
             return response;
         }
-        System.out.println("authentikey: " + CardDataParser.toHexString(authentikey));
+        System.out.println("authentikey: " + toHexString(authentikey));
 
         return response;
     }
@@ -633,13 +636,246 @@ public class SimpleAPDU {
             System.out.println("Create recoveredkey failed");
             return response;
         }
-        System.out.println("recoveredkey: "+CardDataParser.toHexString(recoveredkey));
+        System.out.println("recoveredkey: "+ toHexString(recoveredkey));
 
 //        // 5. test equals keys
 //        CardDataParser.PubKeyData parser = new CardDataParser.PubKeyData();
 //        byte[] authentikey = parser.parseBip32ImportSeed(resAuthKey.getData()).authentikey;
 //
 //        assertArrayEquals(recoveredkey, authentikey);
+
+        return response;
+    }
+
+    public static ResponseAPDU testCardImportKey() throws Exception {
+        // Card import key
+        System.out.println("cardImportKey");
+
+        testImportKey((byte) 4, (byte)0x01, (short)512);
+        testImportKey((byte) 5, (byte)0x02, (short)512);
+        testImportKey((byte) 4, (byte)0x03, (short)512);
+        testImportKey((byte) 12, (byte)0x06, (short)256);
+
+        testImportKey((byte) 3, (byte)0x0A, (short)64);
+        testImportKey((byte) 3, (byte)0x0B, (short)128);
+        testImportKey((byte) 3, (byte)0x0C, (short)192);
+        testImportKey((byte) 3, (byte)0x0D, (short)128);
+        testImportKey((byte) 3, (byte)0x0E, (short)192);
+        testImportKey((byte) 3, (byte)0x0F, (short)256);
+
+        final CardManager cardMngr = new CardManager(true, APPLET_AID_BYTE);
+        final RunConfig runCfg = RunConfig.getDefaultConfig();
+
+        // Running on physical card
+//        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+
+        // Running in the simulator
+        runCfg.setAppletToSimulate(CardEdge.class)
+                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+                .setbReuploadApplet(true)
+                .setInstallData(new byte[8]);
+
+        System.out.print("Connecting to card...");
+        if (!cardMngr.Connect(runCfg)) {
+            return null;
+        }
+        System.out.println(" Done.");
+
+        // 1. Setup data
+        byte[] setupData = SatoChipAppletTest.createSetupData();
+        ResponseAPDU res = cardMngr.transmit(new CommandAPDU(0xB0, 0x2A, 0x00, 0x00, setupData, 0x00));
+        System.out.println(res);
+        if (res.getSW() != 0x9000) {
+            System.out.println("Error: setup card!");
+            return res;
+        }
+
+        byte[] pin = {0x4D, 0x75, 0x73, 0x63, 0x6C, 0x65, 0x30, 0x30};
+
+        // 2. Verify pin
+        System.out.println("cardVerifyPIN");
+        byte[] verifData = new byte[pin.length];
+        short verifBase = 0;
+        for (int i = 0; i < pin.length; i++) {
+            verifData[verifBase++] = pin[i];
+        }
+        res = cardMngr.transmit(new CommandAPDU(0xB0, 0x42, 0x00, 0x00, verifData, 0x00));
+        System.out.println(res);
+        if (res.getSW() != 0x9000) {
+            System.out.println("Error: verify pin!");
+            return res;
+        }
+
+        // list key
+        byte cla= (byte) 0xB0;
+        byte ins= (byte) 0x3C;
+        byte p1= 0x00;
+        byte p2= 0x00;
+        byte[] data= null;
+        byte le= 0x10; // 16 bytes expected?
+
+        ResponseAPDU response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+
+        CardDataParser.CardStatus cardstatus = new CardDataParser.CardStatus(response.getData());
+        System.out.println(cardstatus.toString());
+        return response;
+    }
+
+    public static ResponseAPDU testImportKey(byte key_type, byte key_nbr, short key_size) throws Exception{
+        final CardManager cardMngr = new CardManager(true, APPLET_AID_BYTE);
+        final RunConfig runCfg = RunConfig.getDefaultConfig();
+
+        // Running on physical card
+//        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+
+        // Running in the simulator
+        runCfg.setAppletToSimulate(CardEdge.class)
+                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+                .setbReuploadApplet(true)
+                .setInstallData(new byte[8]);
+
+        System.out.print("Connecting to card...");
+        if (!cardMngr.Connect(runCfg)) {
+            return null;
+        }
+        System.out.println(" Done.");
+
+        // 1. Setup data
+        byte[] setupData = SatoChipAppletTest.createSetupData();
+        ResponseAPDU res = cardMngr.transmit(new CommandAPDU(0xB0, 0x2A, 0x00, 0x00, setupData, 0x00));
+        System.out.println(res);
+        if (res.getSW() != 0x9000) {
+            System.out.println("Error: setup card!");
+            return res;
+        }
+
+        byte[] pin = {0x4D, 0x75, 0x73, 0x63, 0x6C, 0x65, 0x30, 0x30};
+
+        // 2. Verify pin
+        System.out.println("cardVerifyPIN");
+        byte[] verifData = new byte[pin.length];
+        short verifBase = 0;
+        for (int i = 0; i < pin.length; i++) {
+            verifData[verifBase++] = pin[i];
+        }
+        res = cardMngr.transmit(new CommandAPDU(0xB0, 0x42, 0x00, 0x00, verifData, 0x00));
+        System.out.println(res);
+        if (res.getSW() != 0x9000) {
+            System.out.println("Error: verify pin!");
+            return res;
+        }
+
+        byte key_encoding= 0x00; //plain
+        byte[] key_ACL= {0x00,0x01, 0x00,0x01, 0x00,0x01}; //{0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        String stralg="";
+        String strkey="";
+        short keysize= key_size;
+        if (key_type== (byte) 12){
+            stralg="ECpriv";
+            keysize=256;
+            strkey="0020"+"7bb8bfeb2ebc1401f9a14585032df07126ddf634ca641b7fa223b44b1e861548";//pycoin ku P:toporin
+        }
+        else if (key_type==(byte) 11){
+            stralg="ECpub";
+            keysize=256;
+            strkey="0041" //short blob size (0x41=65)
+                    +"04" //uncompressed
+                    +"8d68936ac800d3fc1cf999bfe0a3af4ead4cf9ad61d3cb377c3e5626b5bfa9e8" // coordx
+                    +"d682abeb1337c9b97d114f757bdd81e0207ad673d736eb6b4a84890be5f92335";// coordy
+        }
+        else if (key_type==(byte) 4){
+            stralg="RSApub";
+            keysize=512;
+            strkey="0040"// 0x40=64 modsize (byte)
+                    +"88d8b1c3ac39311ac82af63d6aeb3ea9cd05a28975cbc30203be81339f1341dac60e8afda1130e25e83e64e3112b9fb43c2e1ee47b8f6e164204c526bd7621e5" //mod
+                    +"0003" // expsize
+                    +"010001"; // exponent
+        }
+        else if (key_type==(byte) 5){
+            stralg="RSApriv";
+            keysize=512;
+            strkey="0040"// 0x40=64 modsize (byte)
+                    +"88d8b1c3ac39311ac82af63d6aeb3ea9cd05a28975cbc30203be81339f1341dac60e8afda1130e25e83e64e3112b9fb43c2e1ee47b8f6e164204c526bd7621e5" //mod
+                    +"0040" // expsize
+                    +"60da7d762ffe8a729a194e0e4a0e155bb86fb489f585318fcb76999b1f8b519fa41e55ba3c6294b5eaf1dc333191299ea10f5ca8507c3f120111396686554641";
+        }
+        else if (key_type==(byte) 6){
+            stralg="RSA-CRTpriv";
+            keysize=512;
+            strkey="0020"
+                    +"f07c528f200b28b8e8ff4d73079730179bcec63b61a3012b849434ee4de389af"//P
+                    +"0020"
+                    +"91acbf0d2dc68b213b6dad87cddc580901f646401eee8c1946d395d44c45f6ab"//Q
+                    +"0020"
+                    +"264034c60f9b06db8721d655eacb8708ae68533f310b31cc879c16227857abdb"//Qinv
+                    +"0020"
+                    +"b6350bfc8343d133e0dd66da0bdb4245f0f846fbc0eb573c98b40e32ac7304e3"//DP1
+                    +"0020"
+                    +"1907511bf68d7242176fd4accc95db1a5117fb21f12e932b949badd677f45d59";//DQ1
+        }
+        else if (key_type==(byte) 15 && key_size==128){
+            stralg="AES-128";
+            keysize=128;
+            strkey="0010"+"000102030405060708090a0b0c0d0e0f";//0x10=16
+        }
+        else if (key_type==(byte) 15 && key_size==192){
+            stralg="AES-192";
+            keysize=192;
+            strkey="0018"+"000102030405060708090a0b0c0d0e0f0001020304050607";//0x18=24
+        }
+        else if (key_type==(byte) 15 && key_size==256){
+            stralg="AES-256";
+            keysize=256;
+            strkey="0020"+"000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f";//0x20=32
+        }
+        else if (key_type==(byte) 3 && key_size==64){
+            stralg="DES-64";
+            keysize=64;
+            strkey="0008"+"0001020304050607";//0x08=8
+        }
+        else if (key_type==(byte) 3 && key_size==128){
+            stralg="DES-128";
+            keysize=128;
+            strkey="0010"+"000102030405060708090a0b0c0d0e0f";//0x10=16
+        }
+        else if (key_type==(byte) 3 && key_size==192){
+            stralg="DES-192";
+            keysize=192;
+            strkey="0018"+"000102030405060708090a0b0c0d0e0f0001020304050607";//0x18=24
+        }
+        else{
+            System.out.println("ERROR: key type not supported!");
+            return null;
+        }
+
+        byte[] keyblob= DatatypeConverter.parseHexBinary(strkey);
+
+        System.out.println("TestImportKey(key="+stralg+", nb="+ (int)key_nbr+", keysize="+ keysize+")"); // jcop-ko);
+        if (keyblob.length>242){
+            System.out.println("Invalid data size (>242)");
+            return null;
+        }
+
+        //data=[ key_encoding(1) | key_type(1) | key_size(2) | key_ACL(6) | key_blob(n)]
+        byte cla= (byte) 0xB0;
+        byte ins= 0x32;
+        byte p1= key_nbr;
+        byte p2= 0x00;
+        byte[] data= new byte[1+1+2+6+keyblob.length];
+        byte le= 0x00;
+        short base=0;
+
+        data[base++]= key_encoding;
+        data[base++]= key_type;
+        data[base++]=(byte)(key_size>>8);//most significant byte
+        data[base++]=(byte)(key_size & 0x00FF);//least significant byte
+        System.arraycopy(key_ACL, 0, data, base, (byte) 6);
+        base+= 6;
+        System.arraycopy(keyblob, 0, data, base, keyblob.length);
+        base+=keyblob.length;
+
+        // import key command (data taken from imported object)
+        ResponseAPDU response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
 
         return response;
     }
