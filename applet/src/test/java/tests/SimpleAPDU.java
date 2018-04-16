@@ -46,7 +46,8 @@ public class SimpleAPDU {
             // testCardBip32ImportSeed();
             // testCardBip32GetAuthentiKey();
             // testCardImportKey();
-            testGetPublicKeyFromPrivate((byte) 0x06);
+            // testGetPublicKeyFromPrivate((byte) 0x06);
+            testCardSignMessage();
         } catch (Exception ex) {
             System.out.println("Exception : " + ex);
         }
@@ -958,6 +959,119 @@ public class SimpleAPDU {
             return response;
         }
         System.out.println("pubkey: "+ toHexString(pubkey));
+
+        return response;
+    }
+
+    public static void testCardSignMessage() throws Exception {
+        System.out.println("cardSignMessage");
+
+        String strmsg= "abcdefghijklmnopqrstuvwxyz0123456789";
+        String strmsg_long="";
+        byte std_keynbr= 0x06;//0x00;
+
+        testCardSignMessage(strmsg, std_keynbr);
+        testCardSignMessage(strmsg_long, std_keynbr);
+
+        // todo sign message test for long message
+    }
+
+    public static ResponseAPDU testCardSignMessage(String strmsg, byte keynbr) throws Exception {
+        final CardManager cardMngr = new CardManager(true, APPLET_AID_BYTE);
+        final RunConfig runCfg = RunConfig.getDefaultConfig();
+
+        // Running on physical card
+//        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+
+        // Running in the simulator
+        runCfg.setAppletToSimulate(CardEdge.class)
+                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+                .setbReuploadApplet(true)
+                .setInstallData(new byte[8]);
+
+        System.out.print("Connecting to card...");
+        if (!cardMngr.Connect(runCfg)) {
+            return null;
+        }
+        System.out.println(" Done.");
+
+        // 1. Setup data
+        byte[] setupData = SatoChipAppletTest.createSetupData();
+        ResponseAPDU res = cardMngr.transmit(new CommandAPDU(0xB0, 0x2A, 0x00, 0x00, setupData, 0x00));
+        System.out.println(res);
+        if (res.getSW() != 0x9000) {
+            System.out.println("Error: setup card!");
+            return res;
+        }
+
+        byte[] pin = {0x4D, 0x75, 0x73, 0x63, 0x6C, 0x65, 0x30, 0x30};
+
+        // 2. Verify pin
+        System.out.println("cardVerifyPIN");
+        byte[] verifData = new byte[pin.length];
+        short verifBase = 0;
+        for (int i = 0; i < pin.length; i++) {
+            verifData[verifBase++] = pin[i];
+        }
+        res = cardMngr.transmit(new CommandAPDU(0xB0, 0x42, 0x00, 0x00, verifData, 0x00));
+        System.out.println(res);
+        if (res.getSW() != 0x9000) {
+            System.out.println("Error: verify pin!");
+            return res;
+        }
+
+        // 3. import key
+        res = testImportKey((byte) 12, (byte)0x06, (short)256);
+        if (res.getSW() != 0x9000) {
+            System.out.println("Error: import key!");
+            return res;
+        }
+
+        // 4. recover pubkey
+        ResponseAPDU response = testGetPublicKeyFromPrivate(keynbr);
+        if (response.getSW() != 0x9000) {
+            System.out.println("Error: get private key!");
+            return response;
+        }
+        CardDataParser.PubKeyData parser = new CardDataParser.PubKeyData();
+        byte[] pubkey = parser.parseGetPublicKeyFromPrivate(response.getData()).pubkey;
+        if (pubkey == null) {
+            System.out.println("Create pubkey failed");
+            return response;
+        }
+        System.out.println("signing pubkey: " + toHexString(pubkey));
+
+        // 5. sign message
+        byte[] msg= strmsg.getBytes();
+        // for message less than one chunk in size
+        byte cla= (byte) 0xB0;
+        byte ins= 0x72;
+        byte p1= keynbr; // oxff=>BIP32 otherwise STD
+        byte p2= 0x00;
+        byte[] data= new byte[msg.length+2];
+        byte le= 0x00;
+        short base=0;
+
+        data[0]= (byte)(msg.length>>8 & 0xFF);
+        data[1]= (byte)(msg.length & 0xFF);
+        base+=2;
+        System.arraycopy(msg, 0, data, base, msg.length);
+        base+=msg.length;
+
+        // send apdu
+        ResponseAPDU resSign = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+        byte[] signature = resSign.getData();
+
+        // 6. parse signature
+        System.out.println("signature: "+toHexString(signature));
+        CardDataParser.PubKeyData pubkeydata = new CardDataParser.PubKeyData();
+        String strsignature64= pubkeydata.parseMessageSigning(signature, pubkey, strmsg).compactsig_b64_str;
+        System.out.println("signature in base64: "+strsignature64);
+
+        // 7. verify with bitcoinj
+        ECKey eckey= ECKey.signedMessageToKey(strmsg, strsignature64);
+        System.out.println("recovered pubkey: "+toHexString(eckey.getPubKey()));
+        assertArrayEquals(pubkey, eckey.getPubKey());
 
         return response;
     }

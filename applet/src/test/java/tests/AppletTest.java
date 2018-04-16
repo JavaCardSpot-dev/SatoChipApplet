@@ -117,4 +117,24 @@ public class AppletTest {
         Assert.assertEquals(0x9000, responseAPDU.getSW());
         Assert.assertNotNull(responseAPDU.getBytes());
     }
+
+    @Test
+    public void CardSignMessage() throws Exception {
+        String strmsg= "abcdefghijklmnopqrstuvwxyz0123456789";
+        byte std_keynbr= 0x06;
+        final ResponseAPDU responseAPDU = SimpleAPDU.testCardSignMessage(strmsg, std_keynbr);
+        Assert.assertNotNull(responseAPDU);
+        Assert.assertEquals(0x9000, responseAPDU.getSW());
+        Assert.assertNotNull(responseAPDU.getBytes());
+    }
+
+    @Test
+    public void CardSignEmptyMessage() throws Exception {
+        String strmsg_long="";
+        byte std_keynbr= 0x06;
+        final ResponseAPDU responseAPDU = SimpleAPDU.testCardSignMessage(strmsg_long, std_keynbr);
+        Assert.assertNotNull(responseAPDU);
+        Assert.assertEquals(0x9000, responseAPDU.getSW());
+        Assert.assertNotNull(responseAPDU.getBytes());
+    }
 }
