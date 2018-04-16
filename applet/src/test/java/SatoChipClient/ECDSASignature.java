@@ -2,13 +2,13 @@ package SatoChipClient;
 
 /**
  * Copyright 2013-2014 Ronald W Hoffman
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -50,14 +50,14 @@ public class ECDSASignature {
      * Creates a digital signature from the DER-encoded values
      *
      * @param       encodedStream       DER-encoded value
-     * @throws      ECException         Unable to decode the stream
+     * @throws ECException         Unable to decode the stream
      */
     public ECDSASignature(byte[] encodedStream) throws ECException {
         try {
             try (ASN1InputStream decoder = new ASN1InputStream(encodedStream)) {
-                DLSequence seq = (DLSequence)decoder.readObject();
-                r = ((ASN1Integer)seq.getObjectAt(0)).getPositiveValue();
-                s = ((ASN1Integer)seq.getObjectAt(1)).getPositiveValue();
+                DLSequence seq = (DLSequence) decoder.readObject();
+                r = ((ASN1Integer) seq.getObjectAt(0)).getPositiveValue();
+                s = ((ASN1Integer) seq.getObjectAt(1)).getPositiveValue();
             }
         } catch (ClassCastException | IOException exc) {
             throw new ECException("Unable to decode signature", exc);
@@ -67,7 +67,7 @@ public class ECDSASignature {
     /**
      * Returns the R value
      *
-     * @return                          R component
+     * @return R component
      */
     public BigInteger getR() {
         return r;
@@ -76,7 +76,7 @@ public class ECDSASignature {
     /**
      * Returns the S value
      *
-     * @return                          S component
+     * @return S component
      */
     public BigInteger getS() {
         return s;
@@ -85,7 +85,7 @@ public class ECDSASignature {
     /**
      * Encodes R and S as a DER-encoded byte stream
      *
-     * @return                          DER-encoded byte stream
+     * @return DER-encoded byte stream
      */
     public byte[] encodeToDER() {
         byte[] encodedBytes = null;
@@ -102,8 +102,6 @@ public class ECDSASignature {
         }
         return encodedBytes;
     }
-
-
 
 
 }

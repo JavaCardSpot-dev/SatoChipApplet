@@ -27,7 +27,7 @@ repositories {
 
     // Repository with JCardSim, Globalplatform, etc, ...
     maven {
-        url  "https://dl.bintray.com/ph4r05/jcard"
+        url "https://dl.bintray.com/ph4r05/jcard"
     }
 
     // Local lib repository

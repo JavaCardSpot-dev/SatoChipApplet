@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.xml.bind.DatatypeConverter;
+
 import com.google.bitcoin.crypto.DeterministicKey;
 
 /**
@@ -106,8 +107,8 @@ public class SimpleAPDU {
                 //ublk pin length + ublk pin
                 (byte) 4, (byte) 'M', (byte) 'M', (byte) 'M', (byte) 'M',
                 //mem_size 2bytes
-                (byte)(10>>8), (byte)(10&0x00ff),
-                (byte)(10>>8), (byte)(10&0x00ff),
+                (byte) (10 >> 8), (byte) (10 & 0x00ff),
+                (byte) (10 >> 8), (byte) (10 & 0x00ff),
         };
         System.out.println("Data sent: " + Arrays.toString(data));
         final ResponseAPDU response = cardMngr.transmit(new CommandAPDU(0xB0, 0x2A, 0x00, 0x00, data, 0x00));
@@ -175,31 +176,31 @@ public class SimpleAPDU {
 
         // 2. Verify pin
         System.out.println("cardVerifyPIN");
-        byte[] verifData= new byte[pin.length];
-        short verifBase=0;
-        for (int i=0; i<pin.length; i++){
-            verifData[verifBase++]=pin[i];
+        byte[] verifData = new byte[pin.length];
+        short verifBase = 0;
+        for (int i = 0; i < pin.length; i++) {
+            verifData[verifBase++] = pin[i];
         }
         response = cardMngr.transmit(new CommandAPDU(0xB0, 0x42, 0x00, 0x00, verifData, 0x00));
         System.out.println(response);
 
         // 3. try create pin + ublk
         System.out.println("cardCreatePIN");
-        byte[] pinData = new byte[1+pin.length+1+ublk.length];
-        short pinBase=0;
-        pinData[pinBase++]=(byte)pin.length;
-        for (int i=0; i<pin.length; i++){
-            pinData[pinBase++]=pin[i];
+        byte[] pinData = new byte[1 + pin.length + 1 + ublk.length];
+        short pinBase = 0;
+        pinData[pinBase++] = (byte) pin.length;
+        for (int i = 0; i < pin.length; i++) {
+            pinData[pinBase++] = pin[i];
         }
-        pinData[pinBase++]=(byte)ublk.length;
-        for (int i=0; i<ublk.length; i++){
-            pinData[pinBase++]=ublk[i];
+        pinData[pinBase++] = (byte) ublk.length;
+        for (int i = 0; i < ublk.length; i++) {
+            pinData[pinBase++] = ublk[i];
         }
         try {
             response = cardMngr.transmit(new CommandAPDU(0xB0, 0x40, 2, 3, pinData, 0x00));
             System.out.println(response);
         } catch (Exception ex) {
-            if (response.getSW()== 0x9C10)
+            if (response.getSW() == 0x9C10)
                 System.out.println("PIN exists already!");
             else
                 throw ex;
@@ -207,16 +208,16 @@ public class SimpleAPDU {
 
         // 4. Change pin
         System.out.println("cardChangePIN");
-        byte[] new_pin = {33,33,33,33};
-        byte[] changeData= new byte[1+pin.length+1+new_pin.length];
-        short changeBase=0;
-        changeData[changeBase++]=(byte)pin.length;
-        for (int i=0; i<pin.length; i++){
-            changeData[changeBase++]=pin[i];
+        byte[] new_pin = {33, 33, 33, 33};
+        byte[] changeData = new byte[1 + pin.length + 1 + new_pin.length];
+        short changeBase = 0;
+        changeData[changeBase++] = (byte) pin.length;
+        for (int i = 0; i < pin.length; i++) {
+            changeData[changeBase++] = pin[i];
         }
-        changeData[changeBase++]=(byte)new_pin.length;
-        for (int i=0; i<new_pin.length; i++){
-            changeData[changeBase++]=new_pin[i];
+        changeData[changeBase++] = (byte) new_pin.length;
+        for (int i = 0; i < new_pin.length; i++) {
+            changeData[changeBase++] = new_pin[i];
         }
         response = cardMngr.transmit(new CommandAPDU(0xB0, 0x44, 2, 0x00, changeData, 0x00));
         System.out.println(response);
@@ -227,10 +228,10 @@ public class SimpleAPDU {
 
         // 5. Verify new pin
         System.out.println("cardVerifyPIN (new PIN)");
-        byte[] verif2Data= new byte[pin.length];
-        short verif2Base=0;
-        for (int i=0; i<pin.length; i++){
-            verif2Data[verif2Base++]=pin[i];
+        byte[] verif2Data = new byte[pin.length];
+        short verif2Base = 0;
+        for (int i = 0; i < pin.length; i++) {
+            verif2Data[verif2Base++] = pin[i];
         }
         response = cardMngr.transmit(new CommandAPDU(0xB0, 0x42, 0x00, 0x00, verif2Data, 0x00));
         System.out.println(response);
@@ -241,15 +242,15 @@ public class SimpleAPDU {
 
         // 6. Back to old pin
         System.out.println("cardChangePIN (back to old PIN)");
-        byte[] changeBackData= new byte[1+pin.length+1+new_pin.length];
-        short changeBackBase=0;
-        changeBackData[changeBackBase++]=(byte)new_pin.length;
-        for (int i=0; i<new_pin.length; i++){
-            changeBackData[changeBackBase++]=new_pin[i];
+        byte[] changeBackData = new byte[1 + pin.length + 1 + new_pin.length];
+        short changeBackBase = 0;
+        changeBackData[changeBackBase++] = (byte) new_pin.length;
+        for (int i = 0; i < new_pin.length; i++) {
+            changeBackData[changeBackBase++] = new_pin[i];
         }
-        changeBackData[changeBackBase++]=(byte)pin.length;
-        for (int i=0; i<pin.length; i++){
-            changeBackData[changeBackBase++]=pin[i];
+        changeBackData[changeBackBase++] = (byte) pin.length;
+        for (int i = 0; i < pin.length; i++) {
+            changeBackData[changeBackBase++] = pin[i];
         }
         response = cardMngr.transmit(new CommandAPDU(0xB0, 0x44, 2, 0x00, changeBackData, 0x00));
         System.out.println(response);
@@ -431,12 +432,12 @@ public class SimpleAPDU {
 
         // 3. get card status
         System.out.println("cardGetStatus");
-        byte cla= (byte) 0xB0;
-        byte ins= (byte) 0x3C;
-        byte p1= 0x00;
-        byte p2= 0x00;
-        byte[] data= null;
-        byte le= 0x10; // 16 bytes expected?
+        byte cla = (byte) 0xB0;
+        byte ins = (byte) 0x3C;
+        byte p1 = 0x00;
+        byte p2 = 0x00;
+        byte[] data = null;
+        byte le = 0x10; // 16 bytes expected?
 
         ResponseAPDU response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
         if (response.getSW() == 0x9c04) {
@@ -452,7 +453,7 @@ public class SimpleAPDU {
             return response;
         }
 
-        CardDataParser.CardStatus parser= new CardDataParser.CardStatus(response.getData());
+        CardDataParser.CardStatus parser = new CardDataParser.CardStatus(response.getData());
         System.out.println(parser.toString());
 
         return response;
@@ -505,27 +506,27 @@ public class SimpleAPDU {
         // 3. bip32 import seed
         System.out.println("cardBip32ImportSeed");
 
-        String strseed= "31323334353637383132333435363738";// ascii for 1234567812345678
-        byte[] authentikey= null;
+        String strseed = "31323334353637383132333435363738";// ascii for 1234567812345678
+        byte[] authentikey = null;
         DeterministicKey masterkey = null;
 
         // import seed to HWchip
         long startTime = System.currentTimeMillis();
-        byte[] seed= DatatypeConverter.parseHexBinary(strseed);
-        byte[] seed_ACL= {0x00,0x01, 0x00,0x01, 0x00,0x01}; //{0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        byte[] seed = DatatypeConverter.parseHexBinary(strseed);
+        byte[] seed_ACL = {0x00, 0x01, 0x00, 0x01, 0x00, 0x01}; //{0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         // byte[] response= cc.cardBip32ImportSeed(seed_ACL, seed);
 
-        byte cla= (byte) 0xB0;
-        byte ins= (byte) 0x6C;
-        byte p1= 0x00;
-        byte p2= 0x00;
-        byte[] data= new byte[seed_ACL.length+1+seed.length];
-        byte le= 0x00;
-        short base=0;
+        byte cla = (byte) 0xB0;
+        byte ins = (byte) 0x6C;
+        byte p1 = 0x00;
+        byte p2 = 0x00;
+        byte[] data = new byte[seed_ACL.length + 1 + seed.length];
+        byte le = 0x00;
+        short base = 0;
 
         System.arraycopy(seed_ACL, 0, data, base, seed_ACL.length);
-        base+=seed_ACL.length;
-        data[base++]= (byte)seed.length;
+        base += seed_ACL.length;
+        data[base++] = (byte) seed.length;
         System.arraycopy(seed, 0, data, base, seed.length);
 
         // send apdu (contains sensitive data!)
@@ -545,15 +546,15 @@ public class SimpleAPDU {
 
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
-        System.out.println("elapsed time: "+elapsedTime);
+        System.out.println("elapsed time: " + elapsedTime);
 
         CardDataParser.PubKeyData parser = new CardDataParser.PubKeyData();
-        authentikey= parser.parseBip32ImportSeed(response.getData()).authentikey;
+        authentikey = parser.parseBip32ImportSeed(response.getData()).authentikey;
         if (authentikey == null) {
             System.out.println("Create authentikey failed");
             return response;
         }
-        System.out.println("authentikey: "+CardDataParser.toHexString(authentikey));
+        System.out.println("authentikey: " + CardDataParser.toHexString(authentikey));
 
         return response;
     }
@@ -568,7 +569,7 @@ public class SimpleAPDU {
      * @return
      * @throws CardException
      */
-    public static ResponseAPDU sendCommandWithInitSequence(CardManager cardMngr, String command, ArrayList<String>  initCommands) throws CardException {
+    public static ResponseAPDU sendCommandWithInitSequence(CardManager cardMngr, String command, ArrayList<String> initCommands) throws CardException {
         if (initCommands != null) {
             for (String cmd : initCommands) {
                 cardMngr.getChannel().transmit(new CommandAPDU(Util.hexStringToByteArray(cmd)));

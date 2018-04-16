@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author Petr Svenda
  */
 public class CardManager {
@@ -18,7 +17,7 @@ public class CardManager {
     protected Long lastTransmitTime = (long) 0;
     protected CommandAPDU lastCommand = null;
     protected CardChannel channel = null;
-    
+
     public CardManager(boolean bDebug, byte[] appletAID) {
         this.bDebug = bDebug;
         this.appletId = appletAID;
@@ -26,6 +25,7 @@ public class CardManager {
 
     /**
      * Card connect
+     *
      * @param runCfg run configuration
      * @return true if connected
      * @throws Exception exceptions from underlying connects
@@ -52,14 +52,14 @@ public class CardManager {
             default:
                 channel = null;
                 bConnected = false;
-                
+
         }
         if (channel != null) {
             bConnected = true;
         }
         return bConnected;
     }
-    
+
     public void Disconnect(boolean bReset) throws CardException {
         channel.getCard().disconnect(bReset); // Disconnect from the card
     }
@@ -140,7 +140,7 @@ public class CardManager {
             return null;
         }
     }
-    
+
     public ResponseAPDU transmit(CommandAPDU cmd)
             throws CardException {
 

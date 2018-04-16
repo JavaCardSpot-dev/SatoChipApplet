@@ -6,14 +6,13 @@ import javax.smartcardio.*;
 import java.nio.ByteBuffer;
 
 /**
- *
  * @author Petr Svenda
  */
 public class SimulatedCardChannelLocal extends CardChannel {
     JavaxSmartCardInterface m_simulator;
     SimulatedCard m_card;
-    
-    SimulatedCardChannelLocal (JavaxSmartCardInterface simulator) {
+
+    SimulatedCardChannelLocal(JavaxSmartCardInterface simulator) {
         m_simulator = simulator;
         m_card = new SimulatedCard();
     }
@@ -55,8 +54,8 @@ public class SimulatedCardChannelLocal extends CardChannel {
     public void close() throws CardException {
         m_simulator.reset();
     }
-    
-    
+
+
     private static void log(CommandAPDU cmd) {
         System.out.printf("--> [%s] %s\n", Util.toHex(cmd.getBytes()), cmd.getBytes().length);
     }
@@ -77,5 +76,5 @@ public class SimulatedCardChannelLocal extends CardChannel {
 
     private static void log(ResponseAPDU response) {
         log(response, 0);
-    }    
+    }
 }

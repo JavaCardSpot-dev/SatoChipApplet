@@ -4,7 +4,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- *
  * @author Vasilios Mavroudis and Petr Svenda
  */
 public class Util {
@@ -33,7 +32,7 @@ public class Util {
         }
         return new String(hexChars);
     }
-    
+
     public static byte[] hexStringToByteArray(String s) {
         String sanitized = s.replace(" ", "");
         byte[] b = new byte[sanitized.length() / 2];
@@ -43,9 +42,9 @@ public class Util {
             b[i] = (byte) v;
         }
         return b;
-    }    
-    
-    
+    }
+
+
     // Utils 
     public static short getShort(byte[] buffer, int offset) {
         return ByteBuffer.wrap(buffer, offset, 2).order(ByteOrder.BIG_ENDIAN).getShort();
@@ -58,8 +57,8 @@ public class Util {
     public static byte[] shortToByteArray(int s) {
         return new byte[]{(byte) ((s & 0xFF00) >> 8), (byte) (s & 0x00FF)};
     }
-    
-    
+
+
     public static byte[] joinArray(byte[]... arrays) {
         int length = 0;
         for (byte[] array : arrays) {

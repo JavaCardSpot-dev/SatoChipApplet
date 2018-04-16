@@ -3,13 +3,13 @@ package SatoChipClient;
 /**
  * Copyright 2011 Google Inc.
  * Copyright 2013-2014 Ronald W Hoffman
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -55,6 +55,7 @@ public class Utils {
 
     /** Instance of a SHA-256 digest which we will use as needed */
     private static final MessageDigest digest;
+
     static {
         try {
             digest = MessageDigest.getInstance("SHA-256");
@@ -85,7 +86,7 @@ public class Utils {
      * Calculate the SHA-256 hash of the input
      *
      * @param       input           Data to be hashed
-     * @return                      The hash digest
+     * @return The hash digest
      */
     public static byte[] singleDigest(byte[] input) {
         return singleDigest(input, 0, input.length);
@@ -97,7 +98,7 @@ public class Utils {
      * @param       input           Data to be hashed
      * @param       offset          Starting offset within the data
      * @param       length          Number of bytes to hash
-     * @return                      The hash digest
+     * @return The hash digest
      */
     public static byte[] singleDigest(byte[] input, int offset, int length) {
         byte[] bytes;
@@ -113,7 +114,7 @@ public class Utils {
      * Calculate the SHA-256 hash for a list of buffers
      *
      * @param       inputList       List of buffers to be hashed
-     * @return                      The hash digest
+     * @return The hash digest
      */
 //    TODO fix conversion lambda to anonymous class
 //    inputList.stream().forEach((input) -> {
@@ -138,7 +139,7 @@ public class Utils {
      * Calculate the SHA-256 hash of the input and then hash the resulting hash again
      *
      * @param       input           Data to be hashed
-     * @return                      The hash digest
+     * @return The hash digest
      */
     public static byte[] doubleDigest(byte[] input) {
         return doubleDigest(input, 0, input.length);
@@ -150,7 +151,7 @@ public class Utils {
      * @param       input           Data to be hashed
      * @param       offset          Starting offset within the data
      * @param       length          Number of data bytes to hash
-     * @return                      The hash digest
+     * @return The hash digest
      */
     public static byte[] doubleDigest(byte[] input, int offset, int length) {
         byte[] bytes;
@@ -167,7 +168,7 @@ public class Utils {
      * Calculate the SHA-256 hash of the input list and then hash the resulting hash again
      *
      * @param       inputList       Data to be hashed
-     * @return                      The hash digest
+     * @return The hash digest
      */
 //    TODO fix conversion lambda to anonymous class
 //    public static byte[] doubleDigest(List<byte[]> inputList) {
@@ -192,16 +193,16 @@ public class Utils {
      * @param       input2          Second input byte array
      * @param       offset2         Starting position in the second array
      * @param       length2         Number of bytes to process in the second array
-     * @return                      The SHA-256 digest
+     * @return The SHA-256 digest
      */
-    public static byte[] doubleDigestTwoBuffers(byte[]input1, int offset1, int length1,
-                                                byte[]input2, int offset2, int length2) {
+    public static byte[] doubleDigestTwoBuffers(byte[] input1, int offset1, int length1,
+                                                byte[] input2, int offset2, int length2) {
         byte[] bytes;
         synchronized (digest) {
             digest.reset();
             digest.update(input1, offset1, length1);
             digest.update(input2, offset2, length2);
-            byte[]first = digest.digest();
+            byte[] first = digest.digest();
             bytes = digest.digest(first);
         }
         return bytes;
@@ -211,7 +212,7 @@ public class Utils {
      * Calculate the SHA-1 hash of the input
      *
      * @param       input           The byte array to be hashed
-     * @return                      The hashed result
+     * @return The hashed result
      */
     public static byte[] sha1Hash(byte[] input) {
         byte[] out;
@@ -228,7 +229,7 @@ public class Utils {
      * Calculate the RIPEMD160 hash of the input
      *
      * @param       input           The byte array to be hashed
-     * @return                      The hashed result
+     * @return The hashed result
      */
     public static byte[] hash160(byte[] input) {
         byte[] out = new byte[20];
@@ -242,11 +243,11 @@ public class Utils {
      * Calculate RIPEMD160(SHA256(input)).  This is used in Address calculations.
      *
      * @param       input           The byte array to be hashed
-     * @return                      The hashed result
+     * @return The hashed result
      */
     public static byte[] sha256Hash160(byte[] input) {
         byte[] out = new byte[20];
-        synchronized(digest) {
+        synchronized (digest) {
             digest.reset();
             byte[] sha256 = digest.digest(input);
             RIPEMD160Digest rDigest = new RIPEMD160Digest();
@@ -260,12 +261,12 @@ public class Utils {
      * Return the given byte array encoded as a hex string
      *
      * @param       bytes           The data to be encoded
-     * @return                      The encoded string
+     * @return The encoded string
      */
     public static String bytesToHexString(byte[] bytes) {
-        StringBuilder buf = new StringBuilder(bytes.length*2);
+        StringBuilder buf = new StringBuilder(bytes.length * 2);
         for (byte b : bytes) {
-            String s = Integer.toString(0xFF&b, 16);
+            String s = Integer.toString(0xFF & b, 16);
             if (s.length() < 2)
                 buf.append('0');
             buf.append(s);
@@ -281,16 +282,16 @@ public class Utils {
      *
      * @param       bigInteger          Integer to format into a byte array
      * @param       numBytes            Desired size of the resulting byte array
-     * @return                          Byte array of the desired length
+     * @return Byte array of the desired length
      */
     public static byte[] bigIntegerToBytes(BigInteger bigInteger, int numBytes) {
         if (bigInteger == null)
             return null;
         byte[] bigBytes = bigInteger.toByteArray();
         byte[] bytes = new byte[numBytes];
-        int start = (bigBytes.length==numBytes+1) ? 1 : 0;
+        int start = (bigBytes.length == numBytes + 1) ? 1 : 0;
         int length = Math.min(bigBytes.length, numBytes);
-        System.arraycopy(bigBytes, start, bytes, numBytes-length, length);
+        System.arraycopy(bigBytes, start, bytes, numBytes - length, length);
         return bytes;
     }
 
@@ -299,7 +300,7 @@ public class Utils {
      * the value 1,500,000 will be returned as 1.500M.
      *
      * @param       number          The number to be displayed
-     * @return      Display string
+     * @return Display string
      */
     public static String numberToShortString(BigInteger number) {
         int scale;
@@ -337,10 +338,10 @@ public class Utils {
      *
      * @param       data            Byte array to check
      * @param       index           Bit position
-     * @return      TRUE if the bit is set
+     * @return TRUE if the bit is set
      */
     public static boolean checkBitLE(byte[] data, int index) {
-        return (data[index>>>3] & bitMask[7&index]) != 0;
+        return (data[index >>> 3] & bitMask[7 & index]) != 0;
     }
 
     /**
@@ -349,7 +350,7 @@ public class Utils {
      * @param       index           Bit position
      */
     public static void setBitLE(byte[] data, int index) {
-        data[index>>>3] |= bitMask[7&index];
+        data[index >>> 3] |= bitMask[7 & index];
     }
 
     /**
@@ -357,15 +358,15 @@ public class Utils {
      * hash value in only 32 bits.
      *
      * @param       compact         The compact bit representation
-     * @return                      The decoded result
+     * @return The decoded result
      */
     public static BigInteger decodeCompactBits(long compact) {
-        int size = ((int)(compact>>24)) & 0xFF;
+        int size = ((int) (compact >> 24)) & 0xFF;
         byte[] bytes = new byte[4 + size];
-        bytes[3] = (byte)size;
-        if (size>=1) bytes[4] = (byte)((compact>>16) & 0xFF);
-        if (size>=2) bytes[5] = (byte)((compact>>8) & 0xFF);
-        if (size>=3) bytes[6] = (byte)(compact & 0xFF);
+        bytes[3] = (byte) size;
+        if (size >= 1) bytes[4] = (byte) ((compact >> 16) & 0xFF);
+        if (size >= 2) bytes[5] = (byte) ((compact >> 8) & 0xFF);
+        if (size >= 3) bytes[6] = (byte) (compact & 0xFF);
         return decodeMPI(bytes, true);
     }
 
@@ -376,12 +377,12 @@ public class Utils {
      *
      * @param       mpi             Encoded byte array
      * @param       hasLength       FALSE if the given array is missing the 4-byte length field
-     * @return                      Decoded value
+     * @return Decoded value
      */
     public static BigInteger decodeMPI(byte[] mpi, boolean hasLength) {
         byte[] buf;
         if (hasLength) {
-            int length = (int)readUint32BE(mpi, 0);
+            int length = (int) readUint32BE(mpi, 0);
             buf = new byte[length];
             System.arraycopy(mpi, 4, buf, 0, length);
         } else {
@@ -403,26 +404,26 @@ public class Utils {
      *
      * @param       value           BigInteger value
      * @param       includeLength   TRUE to include the 4 byte length field
-     * @return                      Encoded value
+     * @return Encoded value
      */
     public static byte[] encodeMPI(BigInteger value, boolean includeLength) {
         byte[] bytes;
         if (value.equals(BigInteger.ZERO)) {
             if (!includeLength)
-                bytes = new byte[] {};
+                bytes = new byte[]{};
             else
-                bytes = new byte[] {0x00, 0x00, 0x00, 0x00};
+                bytes = new byte[]{0x00, 0x00, 0x00, 0x00};
         } else {
-            boolean isNegative = value.signum()<0;
+            boolean isNegative = value.signum() < 0;
             if (isNegative)
                 value = value.negate();
             byte[] array = value.toByteArray();
             int length = array.length;
-            if ((array[0]&0x80) == 0x80)
+            if ((array[0] & 0x80) == 0x80)
                 length++;
             if (includeLength) {
-                bytes = new byte[length+4];
-                System.arraycopy(array, 0, bytes, length-array.length+3, array.length);
+                bytes = new byte[length + 4];
+                System.arraycopy(array, 0, bytes, length - array.length + 3, array.length);
                 uint32ToByteArrayBE(length, bytes, 0);
                 if (isNegative)
                     bytes[4] |= 0x80;
@@ -444,12 +445,12 @@ public class Utils {
      * Returns a copy of the given byte array in reverse order.
      *
      * @param       bytes           Array to be reversed
-     * @return                      New byte array in reverse order
+     * @return New byte array in reverse order
      */
     public static byte[] reverseBytes(byte[] bytes) {
         byte[] buf = new byte[bytes.length];
-        for (int i=0; i<bytes.length; i++)
-            buf[i] = bytes[bytes.length-1-i];
+        for (int i = 0; i < bytes.length; i++)
+            buf[i] = bytes[bytes.length - 1 - i];
         return buf;
     }
 
@@ -459,12 +460,12 @@ public class Utils {
      * @param       bytes           Array to be reversed
      * @param       offset          Starting offset in the array
      * @param       length          Number of bytes to reverse
-     * @return                      New byte array in reverse order
+     * @return New byte array in reverse order
      */
     public static byte[] reverseBytes(byte[] bytes, int offset, int length) {
         byte[] buf = new byte[length];
-        for (int i=0; i<length; i++)
-            buf[i] = bytes[offset+length-1-i];
+        for (int i = 0; i < length; i++)
+            buf[i] = bytes[offset + length - 1 - i];
         return buf;
     }
 
@@ -473,12 +474,12 @@ public class Utils {
      *
      * @param       bytes           Bytes to reverse (length must be divisible by 4)
      * @param       trimLength      Trim output to this length (If positive, must be divisible by 4)
-     * @return                      Reversed bytes
+     * @return Reversed bytes
      */
     public static byte[] reverseDwordBytes(byte[] bytes, int trimLength) {
         byte[] rev = new byte[trimLength >= 0 && bytes.length > trimLength ? trimLength : bytes.length];
         for (int i = 0; i < rev.length; i += 4) {
-            System.arraycopy(bytes, i, rev, i , 4);
+            System.arraycopy(bytes, i, rev, i, 4);
             for (int j = 0; j < 4; j++) {
                 rev[i + j] = bytes[i + 3 - j];
             }
@@ -491,13 +492,13 @@ public class Utils {
      *
      * @param       bytes           The byte array
      * @param       offset          Starting offset within the array
-     * @return      The decoded value
+     * @return The decoded value
      */
     public static long readUint32LE(byte[] bytes, int offset) {
-        return ((long)bytes[offset++]&0x00FFL) |
-                (((long)bytes[offset++]&0x00FFL) << 8) |
-                (((long)bytes[offset++]&0x00FFL) << 16) |
-                (((long)bytes[offset]&0x00FFL) << 24);
+        return ((long) bytes[offset++] & 0x00FFL) |
+                (((long) bytes[offset++] & 0x00FFL) << 8) |
+                (((long) bytes[offset++] & 0x00FFL) << 16) |
+                (((long) bytes[offset] & 0x00FFL) << 24);
     }
 
     /**
@@ -505,13 +506,13 @@ public class Utils {
      *
      * @param       bytes           The byte array
      * @param       offset          Starting offset within the array
-     * @return                      The long value
+     * @return The long value
      */
     public static long readUint32BE(byte[] bytes, int offset) {
-        return (((long)bytes[offset++]&0x00FFL) << 24) |
-                (((long)bytes[offset++]&0x00FFL) << 16) |
-                (((long)bytes[offset++]&0x00FFL) << 8) |
-                ((long)bytes[offset]&0x00FFL);
+        return (((long) bytes[offset++] & 0x00FFL) << 24) |
+                (((long) bytes[offset++] & 0x00FFL) << 16) |
+                (((long) bytes[offset++] & 0x00FFL) << 8) |
+                ((long) bytes[offset] & 0x00FFL);
     }
 
     /**
@@ -522,10 +523,10 @@ public class Utils {
      * @param       offset          Starting offset
      */
     public static void uint32ToByteArrayLE(long val, byte[] out, int offset) {
-        out[offset++] = (byte)val;
-        out[offset++] = (byte)(val >> 8);
-        out[offset++] = (byte)(val >> 16);
-        out[offset] = (byte)(val >> 24);
+        out[offset++] = (byte) val;
+        out[offset++] = (byte) (val >> 8);
+        out[offset++] = (byte) (val >> 16);
+        out[offset] = (byte) (val >> 24);
     }
 
     /**
@@ -536,10 +537,10 @@ public class Utils {
      * @param       offset          Starting offset
      */
     public static void uint32ToByteArrayBE(long val, byte[] out, int offset) {
-        out[offset++] = (byte)(val>>24);
-        out[offset++] = (byte)(val>>16);
-        out[offset++] = (byte)(val>>8);
-        out[offset] = (byte)val;
+        out[offset++] = (byte) (val >> 24);
+        out[offset++] = (byte) (val >> 16);
+        out[offset++] = (byte) (val >> 8);
+        out[offset] = (byte) val;
     }
 
     /**
@@ -547,17 +548,17 @@ public class Utils {
      *
      * @param       bytes           The byte array
      * @param       offset          Starting offset within the array
-     * @return                      The long value
+     * @return The long value
      */
     public static long readUint64LE(byte[] bytes, int offset) {
-        return ((long)bytes[offset++]&0x00FFL) |
-                (((long)bytes[offset++]&0x00FFL) << 8) |
-                (((long)bytes[offset++]&0x00FFL) << 16) |
-                (((long)bytes[offset++]&0x00FFL) << 24) |
-                (((long)bytes[offset++]&0x00FFL) << 32) |
-                (((long)bytes[offset++]&0x00FFL) << 40) |
-                (((long)bytes[offset++]&0x00FFL) << 48) |
-                (((long)bytes[offset]&0x00FFL) << 56);
+        return ((long) bytes[offset++] & 0x00FFL) |
+                (((long) bytes[offset++] & 0x00FFL) << 8) |
+                (((long) bytes[offset++] & 0x00FFL) << 16) |
+                (((long) bytes[offset++] & 0x00FFL) << 24) |
+                (((long) bytes[offset++] & 0x00FFL) << 32) |
+                (((long) bytes[offset++] & 0x00FFL) << 40) |
+                (((long) bytes[offset++] & 0x00FFL) << 48) |
+                (((long) bytes[offset] & 0x00FFL) << 56);
     }
 
     /**
@@ -568,14 +569,14 @@ public class Utils {
      * @param       offset          Starting offset
      */
     public static void uint64ToByteArrayLE(long val, byte[] out, int offset) {
-        out[offset++] = (byte)val;
-        out[offset++] = (byte)(val >> 8);
-        out[offset++] = (byte)(val >> 16);
-        out[offset++] = (byte)(val >> 24);
-        out[offset++] = (byte)(val >> 32);
-        out[offset++] = (byte)(val >> 40);
-        out[offset++] = (byte)(val >> 48);
-        out[offset] = (byte)(val >> 56);
+        out[offset++] = (byte) val;
+        out[offset++] = (byte) (val >> 8);
+        out[offset++] = (byte) (val >> 16);
+        out[offset++] = (byte) (val >> 24);
+        out[offset++] = (byte) (val >> 32);
+        out[offset++] = (byte) (val >> 40);
+        out[offset++] = (byte) (val >> 48);
+        out[offset] = (byte) (val >> 56);
     }
 }
 

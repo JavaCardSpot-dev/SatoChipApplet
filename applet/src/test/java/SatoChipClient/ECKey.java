@@ -3,13 +3,13 @@ package SatoChipClient;
 /**
  * Copyright 2011 Google Inc.
  * Copyright 2013-2014 Ronald W Hoffman
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@ package SatoChipClient;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.ec.CustomNamedCurves;
@@ -43,6 +44,7 @@ public class ECKey {
 
     /** Elliptic curve parameters (secp256k1 curve) */
     private static final ECDomainParameters ecParams;
+
     static {
         X9ECParameters params = CustomNamedCurves.getByName("secp256k1");
         ecParams = new ECDomainParameters(params.getCurve(), params.getG(), params.getN(), params.getH());
@@ -79,24 +81,24 @@ public class ECKey {
     public ECKey(byte[] pubKey) {
         if (pubKey != null) {
             this.pubKey = pubKey;
-            isCompressed = (pubKey.length==33);
+            isCompressed = (pubKey.length == 33);
         } else {
             throw new IllegalArgumentException("You must provide a public key");
         }
-        creationTime = System.currentTimeMillis()/1000;
+        creationTime = System.currentTimeMillis() / 1000;
     }
 
     /**
      * Checks if the public key is canonical
      *
      * @param       pubKeyBytes         Public key
-     * @return                          TRUE if the key is canonical
+     * @return TRUE if the key is canonical
      */
     public static boolean isPubKeyCanonical(byte[] pubKeyBytes) {
         boolean isValid = false;
-        if (pubKeyBytes.length == 33 && (pubKeyBytes[0] == (byte)0x02 || pubKeyBytes[0] == (byte)0x03)) {
+        if (pubKeyBytes.length == 33 && (pubKeyBytes[0] == (byte) 0x02 || pubKeyBytes[0] == (byte) 0x03)) {
             isValid = true;
-        } else if (pubKeyBytes.length == 65 && pubKeyBytes[0] == (byte)0x04) {
+        } else if (pubKeyBytes.length == 65 && pubKeyBytes[0] == (byte) 0x04) {
             isValid = true;
         }
         return isValid;
@@ -106,7 +108,7 @@ public class ECKey {
      * Checks if the signature is DER-encoded
      *
      * @param       encodedSig          Encoded signature
-     * @return                          TRUE if the signature is DER-encoded
+     * @return TRUE if the signature is DER-encoded
      */
     public static boolean isSignatureCanonical(byte[] encodedSig) {
         //
@@ -130,45 +132,45 @@ public class ECKey {
         //
         // An ASN.1 sequence is 0x30 followed by the length
         //
-        if (encodedSig.length<2 || encodedSig[0]!=(byte)0x30 || (encodedSig[1]&0x80)!=0)
+        if (encodedSig.length < 2 || encodedSig[0] != (byte) 0x30 || (encodedSig[1] & 0x80) != 0)
             return false;
         //
         // Get length of sequence
         //
-        int length = ((int)encodedSig[1]&0x7f) + 2;
+        int length = ((int) encodedSig[1] & 0x7f) + 2;
         int offset = 2;
         //
         // Check R
         //
-        if (offset+2>length || encodedSig[offset]!=(byte)0x02 || (encodedSig[offset+1]&0x80)!=0)
+        if (offset + 2 > length || encodedSig[offset] != (byte) 0x02 || (encodedSig[offset + 1] & 0x80) != 0)
             return false;
-        int rLength = (int)encodedSig[offset+1]&0x7f;
-        if (offset+rLength+2 > length)
+        int rLength = (int) encodedSig[offset + 1] & 0x7f;
+        if (offset + rLength + 2 > length)
             return false;
-        if (encodedSig[offset+2]==0x00 && (encodedSig[offset+3]&0x80)==0)
+        if (encodedSig[offset + 2] == 0x00 && (encodedSig[offset + 3] & 0x80) == 0)
             return false;
         offset += rLength + 2;
         //
         // Check S
         //
-        if (offset+2>length || encodedSig[offset]!=(byte)0x02 || (encodedSig[offset+1]&0x80)!=0)
+        if (offset + 2 > length || encodedSig[offset] != (byte) 0x02 || (encodedSig[offset + 1] & 0x80) != 0)
             return false;
-        int sLength = (int)encodedSig[offset+1]&0x7f;
-        if (offset+sLength+2 > length)
+        int sLength = (int) encodedSig[offset + 1] & 0x7f;
+        if (offset + sLength + 2 > length)
             return false;
-        if (encodedSig[offset+2]==0x00 && (encodedSig[offset+3]&0x80)==0)
+        if (encodedSig[offset + 2] == 0x00 && (encodedSig[offset + 3] & 0x80) == 0)
             return false;
         offset += sLength + 2;
         //
         // There must be a single byte appended to the signature
         //
-        return (offset == encodedSig.length-1);
+        return (offset == encodedSig.length - 1);
     }
 
     /**
      * Returns the key creation time
      *
-     * @return      Key creation time (seconds)
+     * @return Key creation time (seconds)
      */
     public long getCreationTime() {
         return creationTime;
@@ -186,7 +188,7 @@ public class ECKey {
     /**
      * Returns the key label
      *
-     * @return      Key label
+     * @return Key label
      */
     public String getLabel() {
         return label;
@@ -204,7 +206,7 @@ public class ECKey {
     /**
      * Checks if this is a change key
      *
-     * @return                          TRUE if this is a change key
+     * @return TRUE if this is a change key
      */
     public boolean isChange() {
         return isChange;
@@ -224,7 +226,7 @@ public class ECKey {
      * public key is 33 bytes and starts with '02' or '03' while an uncompressed
      * public key is 65 bytes and starts with '04'.
      *
-     * @return                          Public key
+     * @return Public key
      */
     public byte[] getPubKey() {
         return pubKey;
@@ -233,7 +235,7 @@ public class ECKey {
     /**
      * Returns the public key hash as used in addresses.  The hash is 20 bytes.
      *
-     * @return                          Public key hash
+     * @return Public key hash
      */
     public byte[] getPubKeyHash() {
         if (pubKeyHash == null)
@@ -244,7 +246,7 @@ public class ECKey {
     /**
      * Checks if the public key is compressed
      *
-     * @return                          TRUE if the public key is compressed
+     * @return TRUE if the public key is compressed
      */
     public boolean isCompressed() {
         return isCompressed;
@@ -255,8 +257,8 @@ public class ECKey {
      *
      * @param       contents            The signed contents
      * @param       signature           DER-encoded signature
-     * @return                          TRUE if the signature if valid, FALSE otherwise
-     * @throws      ECException         Unable to verify the signature
+     * @return TRUE if the signature if valid, FALSE otherwise
+     * @throws ECException         Unable to verify the signature
      */
     public boolean verifySignature(byte[] contents, byte[] signature) throws ECException {
         boolean isValid = false;
@@ -289,7 +291,7 @@ public class ECKey {
             signer.init(false, params);
             isValid = signer.verifySignature(contentsHash, sig.getR(), sig.getS());
         } catch (RuntimeException exc) {
-            throw new ECException("Exception while verifying signature: "+exc.getMessage());
+            throw new ECException("Exception while verifying signature: " + exc.getMessage());
         }
         return isValid;
     }
@@ -312,11 +314,11 @@ public class ECKey {
      * @param       sig                 R and S components of the signature
      * @param       e                   The double SHA-256 hash of the original message
      * @param       compressed          Whether or not the original public key was compressed
-     * @return      An ECKey containing only the public part, or null if recovery wasn't possible
+     * @return An ECKey containing only the public part, or null if recovery wasn't possible
      */
     protected static ECKey recoverFromSignature(int recID, ECDSASignature sig, BigInteger e, boolean compressed) {
         BigInteger n = ecParams.getN();
-        BigInteger i = BigInteger.valueOf((long)recID / 2);
+        BigInteger i = BigInteger.valueOf((long) recID / 2);
         BigInteger x = sig.getR().add(i.multiply(n));
         //
         //   Convert the integer x to an octet string X of length mlen using the conversion routine
@@ -327,7 +329,7 @@ public class ECKey {
         //
         // More concisely, what these points mean is to use X as a compressed public key.
         //
-        SecP256K1Curve curve = (SecP256K1Curve)ecParams.getCurve();
+        SecP256K1Curve curve = (SecP256K1Curve) ecParams.getCurve();
         BigInteger prime = curve.getQ();
         if (x.compareTo(prime) >= 0) {
             return null;
@@ -360,40 +362,40 @@ public class ECKey {
         return new ECKey(q.getEncoded(compressed));
     }
 
-    public static byte[] recoverFromSignature(int recID, byte[] msg, byte[] sig, boolean doublehash) throws ECException{
+    public static byte[] recoverFromSignature(int recID, byte[] msg, byte[] sig, boolean doublehash) throws ECException {
 
         //return CardConnector.recoverPublicKeyFromSig(recID, msg, sig, doublehash);
 
-        byte[] digest= new byte[32];
-        SHA256Digest sha256= new SHA256Digest();
+        byte[] digest = new byte[32];
+        SHA256Digest sha256 = new SHA256Digest();
         sha256.reset();
         sha256.update(msg, 0, msg.length);
         sha256.doFinal(digest, 0);
-        if (doublehash){
+        if (doublehash) {
             sha256.reset();
             sha256.update(digest, 0, digest.length);
             sha256.doFinal(digest, 0);
         }
-        BigInteger bi= new BigInteger(1,digest);
-        ECDSASignature ecdsaSig= new ECDSASignature(sig);
-        ECKey k= ECKey.recoverFromSignature(recID, ecdsaSig, bi, true);
+        BigInteger bi = new BigInteger(1, digest);
+        ECDSASignature ecdsaSig = new ECDSASignature(sig);
+        ECKey k = ECKey.recoverFromSignature(recID, ecdsaSig, bi, true);
 
-        if (k!=null)
+        if (k != null)
             return k.getPubKey();
         else
             return null;
 
     }
 
-    public static byte[] recoverFromSignature(byte[] coordx, byte[] msg, byte[] sig, boolean doublehash) throws ECException{
-        byte[] pubkey= null;
-        int recID =-1;
-        for (int i=0; i<4; i++){
-            pubkey= recoverFromSignature(i, msg, sig, doublehash);
-            if (pubkey!=null){
-                byte[] coordxkey= Arrays.copyOfRange(pubkey, 1, 1+coordx.length);
-                if (Arrays.equals(coordx,coordxkey)){
-                    recID=i;
+    public static byte[] recoverFromSignature(byte[] coordx, byte[] msg, byte[] sig, boolean doublehash) throws ECException {
+        byte[] pubkey = null;
+        int recID = -1;
+        for (int i = 0; i < 4; i++) {
+            pubkey = recoverFromSignature(i, msg, sig, doublehash);
+            if (pubkey != null) {
+                byte[] coordxkey = Arrays.copyOfRange(pubkey, 1, 1 + coordx.length);
+                if (Arrays.equals(coordx, coordxkey)) {
+                    recID = i;
                     return pubkey;
                 }
             }
@@ -403,16 +405,17 @@ public class ECKey {
 
         return pubkey;
     }
-    public static int recidFromSignature(byte[] coordx, byte[] msg, byte[] sig, boolean doublehash) throws ECException{
 
-        byte[] pubkey= null;
-        int recID =-1;
-        for (int i=0; i<4; i++){
-            pubkey= recoverFromSignature(i, msg, sig, doublehash);
-            if (pubkey!=null){
-                byte[] coordxkey= Arrays.copyOfRange(pubkey, 1, 1+coordx.length);
-                if (Arrays.equals(coordx,coordxkey)){
-                    recID=i;
+    public static int recidFromSignature(byte[] coordx, byte[] msg, byte[] sig, boolean doublehash) throws ECException {
+
+        byte[] pubkey = null;
+        int recID = -1;
+        for (int i = 0; i < 4; i++) {
+            pubkey = recoverFromSignature(i, msg, sig, doublehash);
+            if (pubkey != null) {
+                byte[] coordxkey = Arrays.copyOfRange(pubkey, 1, 1 + coordx.length);
+                if (Arrays.equals(coordx, coordxkey)) {
+                    recID = i;
                     return recID;
                 }
             }
@@ -429,10 +432,10 @@ public class ECKey {
      *
      * @param       xBN                 X-coordinate
      * @param       yBit                Sign of Y-coordinate
-     * @return                          Uncompressed public key
+     * @return Uncompressed public key
      */
     private static ECPoint decompressKey(BigInteger xBN, boolean yBit) {
-        SecP256K1Curve curve = (SecP256K1Curve)ecParams.getCurve();
+        SecP256K1Curve curve = (SecP256K1Curve) ecParams.getCurve();
         ECFieldElement x = curve.fromBigInteger(xBN);
         ECFieldElement alpha = x.multiply(x.square().add(curve.getA())).add(curve.getB());
         ECFieldElement beta = alpha.sqrt();
@@ -453,17 +456,17 @@ public class ECKey {
      * Checks if two objects are equal
      *
      * @param       obj             The object to check
-     * @return                      TRUE if the object is equal
+     * @return TRUE if the object is equal
      */
     @Override
     public boolean equals(Object obj) {
-        return (obj!=null && (obj instanceof ECKey) && Arrays.equals(pubKey, ((ECKey)obj).pubKey));
+        return (obj != null && (obj instanceof ECKey) && Arrays.equals(pubKey, ((ECKey) obj).pubKey));
     }
 
     /**
      * Returns the hash code for this object
      *
-     * @return                      Hash code
+     * @return Hash code
      */
     @Override
     public int hashCode() {

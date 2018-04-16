@@ -3,13 +3,13 @@ package SatoChipClient;
 /**
  * Copyright 2011 Google Inc.
  * Copyright 2013 Ronald W Hoffman
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -56,33 +56,33 @@ public final class VarInt {
      *
      * @param       buf             Byte array
      * @param       offset          Starting offset into the array
-     * @throws      EOFException    Buffer is too small
+     * @throws EOFException    Buffer is too small
      */
-    public VarInt(byte[]buf, int offset) throws EOFException {
+    public VarInt(byte[] buf, int offset) throws EOFException {
         if (offset > buf.length)
             throw new EOFException("End-of-data while processing VarInt");
-        int first = 0x00FF&(int)buf[offset];
+        int first = 0x00FF & (int) buf[offset];
         if (first < 253) {
             // 8 bits.
             value = first;
             encodedSize = 1;
         } else if (first == 253) {
             // 16 bits.
-            if (offset+2 > buf.length)
+            if (offset + 2 > buf.length)
                 throw new EOFException("End-of-data while processing VarInt");
-            value = (0x00FF&(int)buf[offset+1]) | ((0x00FF&(int)buf[offset+2])<<8);
+            value = (0x00FF & (int) buf[offset + 1]) | ((0x00FF & (int) buf[offset + 2]) << 8);
             encodedSize = 3;
         } else if (first == 254) {
             // 32 bits.
-            if (offset+5 > buf.length)
+            if (offset + 5 > buf.length)
                 throw new EOFException("End-of-data while processing VarInt");
-            value = Utils.readUint32LE(buf, offset+1);
+            value = Utils.readUint32LE(buf, offset + 1);
             encodedSize = 5;
         } else {
             // 64 bits.
-            if (offset+9 > buf.length)
+            if (offset + 9 > buf.length)
                 throw new EOFException("End-of-data while processing VarInt");
-            value = Utils.readUint64LE(buf, offset+1);
+            value = Utils.readUint64LE(buf, offset + 1);
             encodedSize = 9;
         }
     }
@@ -91,8 +91,8 @@ public final class VarInt {
      * Creates a new VarInt from an input stream encoded in little-endian format
      *
      * @param       in              Input stream
-     * @throws      EOFException    End-of-data processing stream
-     * @throws      IOException     I/O error processing stream
+     * @throws EOFException    End-of-data processing stream
+     * @throws IOException     I/O error processing stream
      */
     public VarInt(InputStream in) throws EOFException, IOException {
         int count;
@@ -111,7 +111,7 @@ public final class VarInt {
             if (count < 2)
                 throw new EOFException("End-of-data while processing VarInt");
 
-            value = (0x00FF&(int)buf[0]) | ((0x00FF&(int)buf[1])<<8);
+            value = (0x00FF & (int) buf[0]) | ((0x00FF & (int) buf[1]) << 8);
             encodedSize = 3;
         } else if (first == 254) {
             // 32 bits.
@@ -137,16 +137,16 @@ public final class VarInt {
     /**
      * Returns the value of thie VarInt as an int
      *
-     * @return                      Integer value
+     * @return Integer value
      */
     public int toInt() {
-        return (int)value;
+        return (int) value;
     }
 
     /**
      * Returns the value of this VarInt as a long
      *
-     * @return                      Long value
+     * @return Long value
      */
     public long toLong() {
         return value;
@@ -155,7 +155,7 @@ public final class VarInt {
     /**
      * Returns the encoded size of this VarInt
      *
-     * @return      Encoded size
+     * @return Encoded size
      */
     public int getEncodedSize() {
         return encodedSize;
@@ -166,11 +166,11 @@ public final class VarInt {
      *
      * @param       bytes           Encoded byte stream
      * @param       offset          Offset of the encoded VarInt
-     * @return      Encoded size
+     * @return Encoded size
      */
     public static int sizeOf(byte[] bytes, int offset) {
         int length;
-        int varLength = (int)bytes[offset]&0xff;
+        int varLength = (int) bytes[offset] & 0xff;
         if (varLength < 253)
             length = 1;
         else if (varLength == 253)
@@ -186,11 +186,11 @@ public final class VarInt {
      * Returns the encoded size of the given unsigned integer value.
      *
      * @param       value           Value to be encoded
-     * @return      Encoded size
+     * @return Encoded size
      */
     public static int sizeOf(int value) {
         int minSize;
-        long tValue = ((long)value)&0xffffffffL;
+        long tValue = ((long) value) & 0xffffffffL;
 
         if (tValue < 253L)
             minSize = 1;            // Single data byte
@@ -206,14 +206,14 @@ public final class VarInt {
      * Returns the encoded size of the given unsigned long value
      *
      * @param       value           Value to be encoded
-     * @return      Encoded size
+     * @return Encoded size
      */
     public static int sizeOf(long value) {
         int minSize;
-        if ((value&0xFFFFFFFF00000000L) != 0) {
+        if ((value & 0xFFFFFFFF00000000L) != 0) {
             // 1 marker + 8 data bytes
             minSize = 9;
-        } else if ((value&0x00000000FFFF0000L) != 0) {
+        } else if ((value & 0x00000000FFFF0000L) != 0) {
             // 1 marker + 4 data bytes
             minSize = 5;
         } else if (value >= 253L) {
@@ -230,7 +230,7 @@ public final class VarInt {
     /**
      * Encode the value in little-endian format
      *
-     * @return                      Encoded byte stream
+     * @return Encoded byte stream
      */
     public byte[] encode() {
         return encode(value);
@@ -240,26 +240,26 @@ public final class VarInt {
      * Encode the value in little-endian format
      *
      * @param       value           Value to encode
-     * @return                      Byte array
+     * @return Byte array
      */
     public static byte[] encode(long value) {
         byte[] bytes;
-        if ((value&0xFFFFFFFF00000000L) != 0) {
+        if ((value & 0xFFFFFFFF00000000L) != 0) {
             // 1 marker + 8 data bytes
             bytes = new byte[9];
-            bytes[0] = (byte)255;
+            bytes[0] = (byte) 255;
             Utils.uint64ToByteArrayLE(value, bytes, 1);
-        } else if ((value&0x00000000FFFF0000L) != 0) {
+        } else if ((value & 0x00000000FFFF0000L) != 0) {
             // 1 marker + 4 data bytes
             bytes = new byte[5];
-            bytes[0] = (byte)254;
+            bytes[0] = (byte) 254;
             Utils.uint32ToByteArrayLE(value, bytes, 1);
         } else if (value >= 253L) {
             // 1 marker + 2 data bytes
-            bytes = new byte[]{(byte)253, (byte)value, (byte)(value>>8)};
+            bytes = new byte[]{(byte) 253, (byte) value, (byte) (value >> 8)};
         } else {
             // Single data byte
-            bytes = new byte[]{(byte)value};
+            bytes = new byte[]{(byte) value};
         }
         return bytes;
     }
