@@ -1,9 +1,12 @@
 package tests;
 
+import SatoChipClient.CardDataParser;
 import org.junit.Assert;
 import org.testng.annotations.*;
 
 import javax.smartcardio.ResponseAPDU;
+
+import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Example test class for the applet
@@ -70,5 +73,32 @@ public class AppletTest {
         Assert.assertNotNull(responseAPDU);
         Assert.assertEquals(0x9000, responseAPDU.getSW());
         Assert.assertNotNull(responseAPDU.getBytes());
+    }
+
+    @Test
+    public void CardBip32GetAythentiKey() throws Exception {
+        final ResponseAPDU responseAPDU = SimpleAPDU.testCardBip32GetAuthentiKey();
+        Assert.assertNotNull(responseAPDU);
+        Assert.assertEquals(0x9000, responseAPDU.getSW());
+        Assert.assertNotNull(responseAPDU.getBytes());
+    }
+
+    @Test
+    public void testEqualsKeys() throws Exception {
+        ResponseAPDU resAuthKey = SimpleAPDU.testCardBip32ImportSeed();
+        Assert.assertNotNull(resAuthKey);
+        Assert.assertEquals(0x9000, resAuthKey.getSW());
+        Assert.assertNotNull(resAuthKey.getBytes());
+        CardDataParser.PubKeyData parser = new CardDataParser.PubKeyData();
+        byte[] authentikey = parser.parseBip32ImportSeed(resAuthKey.getData()).authentikey;
+
+        ResponseAPDU resRecKey = SimpleAPDU.testCardBip32GetAuthentiKey();
+        Assert.assertNotNull(resRecKey);
+        Assert.assertEquals(0x9000, resRecKey.getSW());
+        Assert.assertNotNull(resRecKey.getBytes());
+        CardDataParser.PubKeyData pubkeydata = new CardDataParser.PubKeyData();
+        byte[] recoveredkey= pubkeydata.parseBip32GetAuthentikey(resRecKey.getData()).authentikey;
+
+        assertArrayEquals(recoveredkey, authentikey);
     }
 }
