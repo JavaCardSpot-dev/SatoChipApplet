@@ -45,7 +45,8 @@ public class SimpleAPDU {
             // testCardGetStatus();
             // testCardBip32ImportSeed();
             // testCardBip32GetAuthentiKey();
-            testCardImportKey();
+            // testCardImportKey();
+            testGetPublicKeyFromPrivate((byte) 0x06);
         } catch (Exception ex) {
             System.out.println("Exception : " + ex);
         }
@@ -656,6 +657,8 @@ public class SimpleAPDU {
         testImportKey((byte) 4, (byte)0x03, (short)512);
         testImportKey((byte) 12, (byte)0x06, (short)256);
 
+        testGetPublicKeyFromPrivate((byte)0x06);
+
         testImportKey((byte) 3, (byte)0x0A, (short)64);
         testImportKey((byte) 3, (byte)0x0B, (short)128);
         testImportKey((byte) 3, (byte)0x0C, (short)192);
@@ -876,6 +879,85 @@ public class SimpleAPDU {
 
         // import key command (data taken from imported object)
         ResponseAPDU response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+
+        return response;
+    }
+
+    public static ResponseAPDU testGetPublicKeyFromPrivate(byte keynbr) throws Exception{
+        final CardManager cardMngr = new CardManager(true, APPLET_AID_BYTE);
+        final RunConfig runCfg = RunConfig.getDefaultConfig();
+
+        // Running on physical card
+//        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+
+        // Running in the simulator
+        runCfg.setAppletToSimulate(CardEdge.class)
+                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+                .setbReuploadApplet(true)
+                .setInstallData(new byte[8]);
+
+        System.out.print("Connecting to card...");
+        if (!cardMngr.Connect(runCfg)) {
+            return null;
+        }
+        System.out.println(" Done.");
+
+        // 1. Setup data
+        byte[] setupData = SatoChipAppletTest.createSetupData();
+        ResponseAPDU res = cardMngr.transmit(new CommandAPDU(0xB0, 0x2A, 0x00, 0x00, setupData, 0x00));
+        System.out.println(res);
+        if (res.getSW() != 0x9000) {
+            System.out.println("Error: setup card!");
+            return res;
+        }
+
+        byte[] pin = {0x4D, 0x75, 0x73, 0x63, 0x6C, 0x65, 0x30, 0x30};
+
+        // 2. Verify pin
+        System.out.println("cardVerifyPIN");
+        byte[] verifData = new byte[pin.length];
+        short verifBase = 0;
+        for (int i = 0; i < pin.length; i++) {
+            verifData[verifBase++] = pin[i];
+        }
+        res = cardMngr.transmit(new CommandAPDU(0xB0, 0x42, 0x00, 0x00, verifData, 0x00));
+        System.out.println(res);
+        if (res.getSW() != 0x9000) {
+            System.out.println("Error: verify pin!");
+            return res;
+        }
+
+        // 3. import key
+        res = testImportKey((byte) 12, (byte)0x06, (short)256);
+        if (res.getSW() != 0x9000) {
+            System.out.println("Error: import key!");
+            return res;
+        }
+
+        // 4. get public key
+        System.out.println("GetPublicKey");
+
+        byte cla= (byte) 0xB0;
+        byte ins= 0x35;
+        byte p1= keynbr;
+        byte p2= 0x00;
+        byte[] data= null;
+        byte le= 0x00;
+
+        // send apdu
+        ResponseAPDU response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+        if (response.getSW() != 0x9000) {
+            System.out.println("Error: get public key!");
+            return response;
+        }
+
+        CardDataParser.PubKeyData parser = new CardDataParser.PubKeyData();
+        byte[] pubkey = parser.parseGetPublicKeyFromPrivate(response.getData()).pubkey;
+        if (pubkey == null) {
+            System.out.println("Create pubkey failed");
+            return response;
+        }
+        System.out.println("pubkey: "+ toHexString(pubkey));
 
         return response;
     }

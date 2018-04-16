@@ -109,4 +109,12 @@ public class AppletTest {
         Assert.assertEquals(0x9000, responseAPDU.getSW());
         Assert.assertNotNull(responseAPDU.getBytes());
     }
+
+    @Test
+    public void GetPublicKeyFromPrivate() throws Exception {
+        final ResponseAPDU responseAPDU = SimpleAPDU.testGetPublicKeyFromPrivate((byte) 0x06);
+        Assert.assertNotNull(responseAPDU);
+        Assert.assertEquals(0x9000, responseAPDU.getSW());
+        Assert.assertNotNull(responseAPDU.getBytes());
+    }
 }
