@@ -115,17 +115,24 @@ public class Utils {
      * @param       inputList       List of buffers to be hashed
      * @return                      The hash digest
      */
-    public static byte[] singleDigest(List<byte[]> inputList) {
-        byte[] bytes;
-        synchronized(digest) {
-            digest.reset();
-            inputList.stream().forEach((input) -> {
-                digest.update(input, 0, input.length);
-            });
-            bytes = digest.digest();
-        }
-        return bytes;
-    }
+//    TODO fix conversion lambda to anonymous class
+//    inputList.stream().forEach((input) -> {
+//                digest.update(input, 0, input.length);
+//            });
+//
+//    public static byte[] singleDigest(List<byte[]> inputList) {
+//        byte[] bytes;
+//        synchronized(digest) {
+//            digest.reset();
+//            inputList.stream().forEach(new Function<String>() {
+//                @Override public void call(String input) {
+//                    digest.update(input, 0, input.length);
+//                }
+//            });
+//            bytes = digest.digest();
+//        }
+//        return bytes;
+//    }
 
     /**
      * Calculate the SHA-256 hash of the input and then hash the resulting hash again
@@ -162,18 +169,19 @@ public class Utils {
      * @param       inputList       Data to be hashed
      * @return                      The hash digest
      */
-    public static byte[] doubleDigest(List<byte[]> inputList) {
-        byte[] bytes;
-        synchronized(digest) {
-            digest.reset();
-            inputList.stream().forEach((input) -> {
-                digest.update(input, 0, input.length);
-            });
-            byte[] first = digest.digest();
-            bytes = digest.digest(first);
-        }
-        return bytes;
-    }
+//    TODO fix conversion lambda to anonymous class
+//    public static byte[] doubleDigest(List<byte[]> inputList) {
+//        byte[] bytes;
+//        synchronized(digest) {
+//            digest.reset();
+//            inputList.stream().forEach((input) -> {
+//                digest.update(input, 0, input.length);
+//            });
+//            byte[] first = digest.digest();
+//            bytes = digest.digest(first);
+//        }
+//        return bytes;
+//    }
 
     /**
      * Calculate SHA256(SHA256(byte range 1 + byte range 2)).
