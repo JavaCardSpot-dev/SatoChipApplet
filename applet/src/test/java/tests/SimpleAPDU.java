@@ -1,5 +1,6 @@
 package tests;
 
+import SatoChipClient.CardDataParser;
 import applet.CardEdge;
 import cardTools.CardManager;
 import cardTools.RunConfig;
@@ -31,8 +32,9 @@ public class SimpleAPDU {
     public static void main(String[] args) {
         try {
             //demoSingleCommand2();
-            setupCommand();
-            testCardPIN();
+            // setupCommand();
+            // testCardPIN();
+            testCardGetStatus();
         } catch (Exception ex) {
             System.out.println("Exception : " + ex);
         }
@@ -375,6 +377,79 @@ public class SimpleAPDU {
 
             response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
         }
+
+        return response;
+    }
+
+    public static ResponseAPDU testCardGetStatus() throws Exception {
+        final CardManager cardMngr = new CardManager(true, APPLET_AID_BYTE);
+        final RunConfig runCfg = RunConfig.getDefaultConfig();
+
+        // Running on physical card
+//        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+
+        // Running in the simulator
+        runCfg.setAppletToSimulate(CardEdge.class)
+                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+                .setbReuploadApplet(true)
+                .setInstallData(new byte[8]);
+
+        System.out.print("Connecting to card...");
+        if (!cardMngr.Connect(runCfg)) {
+            return null;
+        }
+        System.out.println(" Done.");
+
+        // 1. Setup data
+        byte[] setupData = SatoChipAppletTest.createSetupData();
+        ResponseAPDU res = cardMngr.transmit(new CommandAPDU(0xB0, 0x2A, 0x00, 0x00, setupData, 0x00));
+        System.out.println(res);
+        if (res.getSW() != 0x9000) {
+            System.out.println("Error: setup card!");
+            return res;
+        }
+
+        byte[] pin = {0x4D, 0x75, 0x73, 0x63, 0x6C, 0x65, 0x30, 0x30};
+
+        // 2. Verify pin
+        System.out.println("cardVerifyPIN");
+        byte[] verifData = new byte[pin.length];
+        short verifBase = 0;
+        for (int i = 0; i < pin.length; i++) {
+            verifData[verifBase++] = pin[i];
+        }
+        res = cardMngr.transmit(new CommandAPDU(0xB0, 0x42, 0x00, 0x00, verifData, 0x00));
+        System.out.println(res);
+        if (res.getSW() != 0x9000) {
+            System.out.println("Error: verify pin!");
+            return res;
+        }
+
+        // 3. get card status
+        System.out.println("cardGetStatus");
+        byte cla= (byte) 0xB0;
+        byte ins= (byte) 0x3C;
+        byte p1= 0x00;
+        byte p2= 0x00;
+        byte[] data= null;
+        byte le= 0x10; // 16 bytes expected?
+
+        ResponseAPDU response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+        if (response.getSW() == 0x9c04) {
+            System.out.println("Required setup is not not done");
+            return response;
+        }
+        if (response.getSW() == 0x9c02) {
+            System.out.println("Entered PIN is not correct");
+            return response;
+        }
+        if (response.getSW() != 0x9000) {
+            System.out.println("Error: get card status!");
+            return response;
+        }
+
+        CardDataParser.CardStatus parser= new CardDataParser.CardStatus(response.getData());
+        System.out.println(parser.toString());
 
         return response;
     }

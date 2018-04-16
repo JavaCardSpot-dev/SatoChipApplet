@@ -55,4 +55,12 @@ public class AppletTest {
         Assert.assertEquals(0x9000, responseAPDU.getSW());
         Assert.assertNotNull(responseAPDU.getBytes());
     }
+
+    @Test
+    public void getCardStatus() throws Exception {
+        final ResponseAPDU responseAPDU = SimpleAPDU.testCardGetStatus();
+        Assert.assertNotNull(responseAPDU);
+        Assert.assertEquals(0x9000, responseAPDU.getSW());
+        Assert.assertNotNull(responseAPDU.getBytes());
+    }
 }
