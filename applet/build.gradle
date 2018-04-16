@@ -42,6 +42,9 @@ dependencies {
     testCompile group: 'com.klinec', name: 'javacard-tools', version: '0.0.1', transitive: false
 
     jcardsim 'com.licel:jcardsim:3.0.5'
+
+    // https://mvnrepository.com/artifact/com.google/bitcoinj
+    compile group: 'com.google', name: 'bitcoinj', version: '0.11.3'
 }
 
 test {

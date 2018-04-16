@@ -12,6 +12,9 @@ import javax.smartcardio.ResponseAPDU;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import javax.xml.bind.DatatypeConverter;
+import com.google.bitcoin.crypto.DeterministicKey;
+
 /**
  * Test class.
  * Note: If simulator cannot be started try adding "-noverify" JVM parameter
@@ -34,7 +37,8 @@ public class SimpleAPDU {
             //demoSingleCommand2();
             // setupCommand();
             // testCardPIN();
-            testCardGetStatus();
+            // testCardGetStatus();
+            testCardBip32ImportSeed();
         } catch (Exception ex) {
             System.out.println("Exception : " + ex);
         }
@@ -84,7 +88,7 @@ public class SimpleAPDU {
         }
         System.out.println(" Done.");
 
-		//Won't be used, just a reference what the inside of setup data looks like
+        //Won't be used, just a reference what the inside of setup data looks like
         byte[] data = {
                 //Initial pin length + initial pin
                 (byte) 8, (byte) 'M', (byte) 'u', (byte) 's', (byte) 'c', (byte) 'l', (byte) 'e', (byte) '0', (byte) '0',
@@ -101,9 +105,9 @@ public class SimpleAPDU {
                 (byte) 4, (byte) 'M', (byte) 'M', (byte) 'M', (byte) 'M',
                 //ublk pin length + ublk pin
                 (byte) 4, (byte) 'M', (byte) 'M', (byte) 'M', (byte) 'M',
-				//mem_size 2bytes
-				(byte)(10>>8), (byte)(10&0x00ff),
-				(byte)(10>>8), (byte)(10&0x00ff),
+                //mem_size 2bytes
+                (byte)(10>>8), (byte)(10&0x00ff),
+                (byte)(10>>8), (byte)(10&0x00ff),
         };
         System.out.println("Data sent: " + Arrays.toString(data));
         final ResponseAPDU response = cardMngr.transmit(new CommandAPDU(0xB0, 0x2A, 0x00, 0x00, data, 0x00));
@@ -450,6 +454,106 @@ public class SimpleAPDU {
 
         CardDataParser.CardStatus parser= new CardDataParser.CardStatus(response.getData());
         System.out.println(parser.toString());
+
+        return response;
+    }
+
+    public static ResponseAPDU testCardBip32ImportSeed() throws Exception {
+        final CardManager cardMngr = new CardManager(true, APPLET_AID_BYTE);
+        final RunConfig runCfg = RunConfig.getDefaultConfig();
+
+        // Running on physical card
+//        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+
+        // Running in the simulator
+        runCfg.setAppletToSimulate(CardEdge.class)
+                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+                .setbReuploadApplet(true)
+                .setInstallData(new byte[8]);
+
+        System.out.print("Connecting to card...");
+        if (!cardMngr.Connect(runCfg)) {
+            return null;
+        }
+        System.out.println(" Done.");
+
+        // 1. Setup data
+        byte[] setupData = SatoChipAppletTest.createSetupData();
+        ResponseAPDU res = cardMngr.transmit(new CommandAPDU(0xB0, 0x2A, 0x00, 0x00, setupData, 0x00));
+        System.out.println(res);
+        if (res.getSW() != 0x9000) {
+            System.out.println("Error: setup card!");
+            return res;
+        }
+
+        byte[] pin = {0x4D, 0x75, 0x73, 0x63, 0x6C, 0x65, 0x30, 0x30};
+
+        // 2. Verify pin
+        System.out.println("cardVerifyPIN");
+        byte[] verifData = new byte[pin.length];
+        short verifBase = 0;
+        for (int i = 0; i < pin.length; i++) {
+            verifData[verifBase++] = pin[i];
+        }
+        res = cardMngr.transmit(new CommandAPDU(0xB0, 0x42, 0x00, 0x00, verifData, 0x00));
+        System.out.println(res);
+        if (res.getSW() != 0x9000) {
+            System.out.println("Error: verify pin!");
+            return res;
+        }
+
+        // 3. bip32 import seed
+        System.out.println("cardBip32ImportSeed");
+
+        String strseed= "31323334353637383132333435363738";// ascii for 1234567812345678
+        byte[] authentikey= null;
+        DeterministicKey masterkey = null;
+
+        // import seed to HWchip
+        long startTime = System.currentTimeMillis();
+        byte[] seed= DatatypeConverter.parseHexBinary(strseed);
+        byte[] seed_ACL= {0x00,0x01, 0x00,0x01, 0x00,0x01}; //{0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        // byte[] response= cc.cardBip32ImportSeed(seed_ACL, seed);
+
+        byte cla= (byte) 0xB0;
+        byte ins= (byte) 0x6C;
+        byte p1= 0x00;
+        byte p2= 0x00;
+        byte[] data= new byte[seed_ACL.length+1+seed.length];
+        byte le= 0x00;
+        short base=0;
+
+        System.arraycopy(seed_ACL, 0, data, base, seed_ACL.length);
+        base+=seed_ACL.length;
+        data[base++]= (byte)seed.length;
+        System.arraycopy(seed, 0, data, base, seed.length);
+
+        // send apdu (contains sensitive data!)
+        ResponseAPDU response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+        if (response.getSW() == 0x9c04) {
+            System.out.println("Required setup is not not done");
+            return response;
+        }
+        if (response.getSW() == 0x9c02) {
+            System.out.println("Entered PIN is not correct");
+            return response;
+        }
+        if (response.getSW() != 0x9000) {
+            System.out.println("Error: card bip32 import seed!");
+            return response;
+        }
+
+        long stopTime = System.currentTimeMillis();
+        long elapsedTime = stopTime - startTime;
+        System.out.println("elapsed time: "+elapsedTime);
+
+        CardDataParser.PubKeyData parser = new CardDataParser.PubKeyData();
+        authentikey= parser.parseBip32ImportSeed(response.getData()).authentikey;
+        if (authentikey == null) {
+            System.out.println("Create authentikey failed");
+            return response;
+        }
+        System.out.println("authentikey: "+CardDataParser.toHexString(authentikey));
 
         return response;
     }

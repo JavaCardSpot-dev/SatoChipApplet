@@ -12,7 +12,7 @@ import javax.smartcardio.ResponseAPDU;
  * @author xsvenda, Dusan Klinec (ph4r05)
  */
 public class AppletTest {
-    
+
     public AppletTest() {
     }
 
@@ -59,6 +59,14 @@ public class AppletTest {
     @Test
     public void getCardStatus() throws Exception {
         final ResponseAPDU responseAPDU = SimpleAPDU.testCardGetStatus();
+        Assert.assertNotNull(responseAPDU);
+        Assert.assertEquals(0x9000, responseAPDU.getSW());
+        Assert.assertNotNull(responseAPDU.getBytes());
+    }
+
+    @Test
+    public void CardBip32ImportSeed() throws Exception {
+        final ResponseAPDU responseAPDU = SimpleAPDU.testCardBip32ImportSeed();
         Assert.assertNotNull(responseAPDU);
         Assert.assertEquals(0x9000, responseAPDU.getSW());
         Assert.assertNotNull(responseAPDU.getBytes());
