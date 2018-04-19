@@ -37,7 +37,7 @@ public class AppletTest {
 
     @Test
     public void setup() throws Exception {
-        final ResponseAPDU responseAPDU = SimpleAPDU.setupCommand();
+        final ResponseAPDU responseAPDU = SimpleAPDU.testSetupCommand();
         Assert.assertNotNull(responseAPDU);
         Assert.assertEquals(0x9000, responseAPDU.getSW());
         Assert.assertNotNull(responseAPDU.getBytes());

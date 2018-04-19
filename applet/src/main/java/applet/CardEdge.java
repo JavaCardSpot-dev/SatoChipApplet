@@ -606,8 +606,8 @@ public class CardEdge extends javacard.framework.Applet implements ExtendedLengt
         // Destroy the IO objects (if they exist)
         if (setupDone != BYTE_FALSE) {
             if (setupDone == BYTE_TRUE) {
-                om.destroyObject(IN_OBJECT_CLA, IN_OBJECT_ID, true);
-                om.destroyObject(OUT_OBJECT_CLA, OUT_OBJECT_ID, true);
+				om.destroyObject(IN_OBJECT_CLA, IN_OBJECT_ID, true);
+				om.destroyObject(OUT_OBJECT_CLA, OUT_OBJECT_ID, true);
             }
         }
         LogOutAll();
