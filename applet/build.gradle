@@ -62,7 +62,7 @@ final def JC305 = libsSdk + '/jc305u1_kit'
 final def JC305u2 = libsSdk + '/jc305u2_kit'
 
 // Which JavaCard SDK to use - select
-final def JC_SELECTED = JC304
+final def JC_SELECTED = JC303
 
 javacard {
 
