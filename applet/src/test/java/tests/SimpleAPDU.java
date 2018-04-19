@@ -176,7 +176,7 @@ public class SimpleAPDU {
         System.out.println(response);
         if (response.getSW() != 0x9000) {
             System.out.println("Error: setup card!");
-            return response;
+            //return response;
         }
 
         byte[] pin = {0x4D, 0x75, 0x73, 0x63, 0x6C, 0x65, 0x30, 0x30};
@@ -304,7 +304,7 @@ public class SimpleAPDU {
         System.out.println(response);
         if (response.getSW() != 0x9000) {
             System.out.println("Error: setup card!");
-            return response;
+            // return response;
         }
 
         byte[] pin = {0x4D, 0x75, 0x73, 0x63, 0x6C, 0x65, 0x30, 0x30};
@@ -419,7 +419,7 @@ public class SimpleAPDU {
         System.out.println(res);
         if (res.getSW() != 0x9000) {
             System.out.println("Error: setup card!");
-            return res;
+            // return res;
         }
 
         byte[] pin = {0x4D, 0x75, 0x73, 0x63, 0x6C, 0x65, 0x30, 0x30};
@@ -492,7 +492,7 @@ public class SimpleAPDU {
         System.out.println(res);
         if (res.getSW() != 0x9000) {
             System.out.println("Error: setup card!");
-            return res;
+            // return res;
         }
 
         byte[] pin = {0x4D, 0x75, 0x73, 0x63, 0x6C, 0x65, 0x30, 0x30};
@@ -592,7 +592,7 @@ public class SimpleAPDU {
         System.out.println(res);
         if (res.getSW() != 0x9000) {
             System.out.println("Error: setup card!");
-            return res;
+            // return res;
         }
 
         byte[] pin = {0x4D, 0x75, 0x73, 0x63, 0x6C, 0x65, 0x30, 0x30};
@@ -691,7 +691,7 @@ public class SimpleAPDU {
         System.out.println(res);
         if (res.getSW() != 0x9000) {
             System.out.println("Error: setup card!");
-            return res;
+            // return res;
         }
 
         byte[] pin = {0x4D, 0x75, 0x73, 0x63, 0x6C, 0x65, 0x30, 0x30};
@@ -750,7 +750,7 @@ public class SimpleAPDU {
         System.out.println(res);
         if (res.getSW() != 0x9000) {
             System.out.println("Error: setup card!");
-            return res;
+            // return res;
         }
 
         byte[] pin = {0x4D, 0x75, 0x73, 0x63, 0x6C, 0x65, 0x30, 0x30};
@@ -909,7 +909,7 @@ public class SimpleAPDU {
         System.out.println(res);
         if (res.getSW() != 0x9000) {
             System.out.println("Error: setup card!");
-            return res;
+            // return res;
         }
 
         byte[] pin = {0x4D, 0x75, 0x73, 0x63, 0x6C, 0x65, 0x30, 0x30};
@@ -1001,7 +1001,7 @@ public class SimpleAPDU {
         System.out.println(res);
         if (res.getSW() != 0x9000) {
             System.out.println("Error: setup card!");
-            return res;
+            // return res;
         }
 
         byte[] pin = {0x4D, 0x75, 0x73, 0x63, 0x6C, 0x65, 0x30, 0x30};
