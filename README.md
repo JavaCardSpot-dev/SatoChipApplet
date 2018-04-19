@@ -82,6 +82,8 @@ Here is an [alternative description](https://github.com/Yubico/ykneo-openpgp/blo
 
 In principle, you could also use Netbeans and the more appropriate JCDK 3.0.3 to build the CAP file. However, I had a hard time setting this up and use it with the Yubikey, so I ended up using Eclipse with some workaround instead. 
 
+You will also need [bitcoinj](https://jar-download.com/explore-java-source-code.php?a=bitcoinj&g=com.google&v=0.11.3&downloadable=1)  version 0.11.3 from the group com.google. It is used in tests. 
+
 # Install
 
 Once you have a CAP file, you have to download it on the chip card. You can use GPJ to do this:
