@@ -53,13 +53,13 @@ public class SimpleAPDU {
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
         // Running on physical card
-        // runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
 
         // Running in the simulator
-        runCfg.setAppletToSimulate(CardEdge.class)
-                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-                .setbReuploadApplet(true)
-                .setInstallData(new byte[8]);
+//        runCfg.setAppletToSimulate(CardEdge.class)
+//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+//                .setbReuploadApplet(true)
+//                .setInstallData(new byte[8]);
 
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
@@ -68,7 +68,9 @@ public class SimpleAPDU {
         System.out.println(" Done.");
 
         byte[] data = SatoChipAppletTest.createSetupData();
+        long start = System.nanoTime();
         final ResponseAPDU response = cardMngr.transmit(new CommandAPDU(0xB0, 0x2A, 0x00, 0x00, data, 0x00));
+        System.out.println("Time measurement: " + (System.nanoTime() - start) / 1000000 + " ms");
         System.out.println(response);
 
         return response;
@@ -79,13 +81,13 @@ public class SimpleAPDU {
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
         // Running on physical card
-        // runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
 
         // Running in the simulator
-        runCfg.setAppletToSimulate(CardEdge.class)
-                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-                .setbReuploadApplet(true)
-                .setInstallData(new byte[8]);
+//        runCfg.setAppletToSimulate(CardEdge.class)
+//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+//                .setbReuploadApplet(true)
+//                .setInstallData(new byte[8]);
 
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
@@ -112,7 +114,9 @@ public class SimpleAPDU {
         for (int i = 0; i < pin.length; i++) {
             verifData[verifBase++] = pin[i];
         }
+        long start = System.nanoTime();
         response = cardMngr.transmit(new CommandAPDU(0xB0, 0x42, 0x00, 0x00, verifData, 0x00));
+        System.out.println("Time measurement: " + (System.nanoTime() - start) / 1000000 + " ms");
         System.out.println(response);
 
         // 3. try create pin + ublk
@@ -128,7 +132,9 @@ public class SimpleAPDU {
             pinData[pinBase++] = ublk[i];
         }
         try {
+            start = System.nanoTime();
             response = cardMngr.transmit(new CommandAPDU(0xB0, 0x40, 2, 3, pinData, 0x00));
+            System.out.println("Time measurement: " + (System.nanoTime() - start) / 1000000 + " ms");
             System.out.println(response);
         } catch (Exception ex) {
             if (response.getSW() == 0x9C10)
@@ -150,7 +156,9 @@ public class SimpleAPDU {
         for (int i = 0; i < new_pin.length; i++) {
             changeData[changeBase++] = new_pin[i];
         }
+        start = System.nanoTime();
         response = cardMngr.transmit(new CommandAPDU(0xB0, 0x44, 2, 0x00, changeData, 0x00));
+        System.out.println("Time measurement: " + (System.nanoTime() - start) / 1000000 + " ms");
         System.out.println(response);
         if (response.getSW() != 0x9000) {
             System.out.println("Error: change pin!");
@@ -164,7 +172,9 @@ public class SimpleAPDU {
         for (int i = 0; i < pin.length; i++) {
             verif2Data[verif2Base++] = pin[i];
         }
+        start = System.nanoTime();
         response = cardMngr.transmit(new CommandAPDU(0xB0, 0x42, 0x00, 0x00, verif2Data, 0x00));
+        System.out.println("Time measurement: " + (System.nanoTime() - start) / 1000000 + " ms");
         System.out.println(response);
         if (response.getSW() != 0x9000) {
             System.out.println("Error: verify new pin!");
@@ -183,7 +193,9 @@ public class SimpleAPDU {
         for (int i = 0; i < pin.length; i++) {
             changeBackData[changeBackBase++] = pin[i];
         }
+        start = System.nanoTime();
         response = cardMngr.transmit(new CommandAPDU(0xB0, 0x44, 2, 0x00, changeBackData, 0x00));
+        System.out.println("Time measurement: " + (System.nanoTime() - start) / 1000000 + " ms");
         System.out.println(response);
         if (response.getSW() != 0x9000) {
             System.out.println("Error: change to original pin!");
@@ -192,7 +204,9 @@ public class SimpleAPDU {
 
         // 7. Verify original pin
         System.out.println("cardVerifyPIN");
+        start = System.nanoTime();
         response = cardMngr.transmit(new CommandAPDU(0xB0, 0x42, 2, 0x00, verifData, 0x00));
+        System.out.println("Time measurement: " + (System.nanoTime() - start) / 1000000 + " ms");
         System.out.println(response);
         if (response.getSW() != 0x9000) {
             System.out.println("Error: verify back pin!");
@@ -207,13 +221,13 @@ public class SimpleAPDU {
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
         // Running on physical card
-        // runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
 
         // Running in the simulator
-        runCfg.setAppletToSimulate(CardEdge.class)
-                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-                .setbReuploadApplet(true)
-                .setInstallData(new byte[8]);
+//        runCfg.setAppletToSimulate(CardEdge.class)
+//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+//                .setbReuploadApplet(true)
+//                .setInstallData(new byte[8]);
 
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
@@ -270,7 +284,9 @@ public class SimpleAPDU {
             data[offset++] = (byte) ((objSize) & 0xff);
             System.arraycopy(objACL, 0, data, 8, objACL.length);
 
+            long start = System.nanoTime();
             response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+            System.out.println("Time measurement: " + (System.nanoTime() - start) / 1000000 + " ms");
         }
 
         // 4. write to object, write 200B of data
@@ -294,7 +310,9 @@ public class SimpleAPDU {
             data[offset++] = (byte) objWriteData.length;
             System.arraycopy(objWriteData, 0, data, offset, objWriteData.length);
 
+            long start = System.nanoTime();
             response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+            System.out.println("Time measurement: " + (System.nanoTime() - start) / 1000000 + " ms");
         }
 
         // 5. delete object with id objId
@@ -311,7 +329,9 @@ public class SimpleAPDU {
             data[offset++] = (byte) ((objId >>> 8) & 0xff);
             data[offset++] = (byte) ((objId) & 0xff);
 
+            long start = System.nanoTime();
             response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+            System.out.println("Time measurement: " + (System.nanoTime() - start) / 1000000 + " ms");
         }
 
         return response;
@@ -322,13 +342,13 @@ public class SimpleAPDU {
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
         // Running on physical card
-//        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
 
         // Running in the simulator
-        runCfg.setAppletToSimulate(CardEdge.class)
-                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-                .setbReuploadApplet(true)
-                .setInstallData(new byte[8]);
+//        runCfg.setAppletToSimulate(CardEdge.class)
+//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+//                .setbReuploadApplet(true)
+//                .setInstallData(new byte[8]);
 
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
@@ -370,7 +390,9 @@ public class SimpleAPDU {
         byte[] data = null;
         byte le = 0x10; // 16 bytes expected?
 
+        long start = System.nanoTime();
         ResponseAPDU response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+        System.out.println("Time measurement: " + (System.nanoTime() - start) / 1000000 + " ms");
         if (response.getSW() == 0x9c04) {
             System.out.println("Required setup is not not done");
             return response;
@@ -395,13 +417,13 @@ public class SimpleAPDU {
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
         // Running on physical card
-//        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
 
         // Running in the simulator
-        runCfg.setAppletToSimulate(CardEdge.class)
-                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-                .setbReuploadApplet(true)
-                .setInstallData(new byte[8]);
+//        runCfg.setAppletToSimulate(CardEdge.class)
+//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+//                .setbReuploadApplet(true)
+//                .setInstallData(new byte[8]);
 
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
@@ -461,7 +483,9 @@ public class SimpleAPDU {
         System.arraycopy(seed, 0, data, base, seed.length);
 
         // send apdu (contains sensitive data!)
+        long start = System.nanoTime();
         ResponseAPDU response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+        System.out.println("Time measurement: " + (System.nanoTime() - start) / 1000000 + " ms");
         if (response.getSW() == 0x9c04) {
             System.out.println("Required setup is not not done");
             return response;
@@ -495,13 +519,13 @@ public class SimpleAPDU {
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
         // Running on physical card
-//        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
 
         // Running in the simulator
-        runCfg.setAppletToSimulate(CardEdge.class)
-                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-                .setbReuploadApplet(true)
-                .setInstallData(new byte[8]);
+//        runCfg.setAppletToSimulate(CardEdge.class)
+//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+//                .setbReuploadApplet(true)
+//                .setInstallData(new byte[8]);
 
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
@@ -553,7 +577,9 @@ public class SimpleAPDU {
         short base = 0;
 
         // send apdu
+        long start = System.nanoTime();
         ResponseAPDU response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+        System.out.println("Time measurement: " + (System.nanoTime() - start) / 1000000 + " ms");
 
         CardDataParser.PubKeyData pubkeydata = new CardDataParser.PubKeyData();
         byte[] recoveredkey = pubkeydata.parseBip32GetAuthentikey(response.getData()).authentikey;
@@ -594,13 +620,13 @@ public class SimpleAPDU {
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
         // Running on physical card
-//        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
 
         // Running in the simulator
-        runCfg.setAppletToSimulate(CardEdge.class)
-                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-                .setbReuploadApplet(true)
-                .setInstallData(new byte[8]);
+//        runCfg.setAppletToSimulate(CardEdge.class)
+//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+//                .setbReuploadApplet(true)
+//                .setInstallData(new byte[8]);
 
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
@@ -641,7 +667,9 @@ public class SimpleAPDU {
         byte[] data = null;
         byte le = 0x10; // 16 bytes expected?
 
+        long start = System.nanoTime();
         ResponseAPDU response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+        System.out.println("Time measurement: " + (System.nanoTime() - start) / 1000000 + " ms");
 
         CardDataParser.CardStatus cardstatus = new CardDataParser.CardStatus(response.getData());
         System.out.println(cardstatus.toString());
@@ -653,13 +681,13 @@ public class SimpleAPDU {
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
         // Running on physical card
-//        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
 
         // Running in the simulator
-        runCfg.setAppletToSimulate(CardEdge.class)
-                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-                .setbReuploadApplet(true)
-                .setInstallData(new byte[8]);
+//        runCfg.setAppletToSimulate(CardEdge.class)
+//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+//                .setbReuploadApplet(true)
+//                .setInstallData(new byte[8]);
 
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
@@ -791,7 +819,9 @@ public class SimpleAPDU {
         base += keyblob.length;
 
         // import key command (data taken from imported object)
+        long start = System.nanoTime();
         ResponseAPDU response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+        System.out.println("Time measurement: " + (System.nanoTime() - start) / 1000000 + " ms");
 
         return response;
     }
@@ -801,13 +831,13 @@ public class SimpleAPDU {
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
         // Running on physical card
-//        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
 
         // Running in the simulator
-        runCfg.setAppletToSimulate(CardEdge.class)
-                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-                .setbReuploadApplet(true)
-                .setInstallData(new byte[8]);
+//        runCfg.setAppletToSimulate(CardEdge.class)
+//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+//                .setbReuploadApplet(true)
+//                .setInstallData(new byte[8]);
 
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
@@ -858,7 +888,9 @@ public class SimpleAPDU {
         byte le = 0x00;
 
         // send apdu
+        long start = System.nanoTime();
         ResponseAPDU response = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+        System.out.println("Time measurement: " + (System.nanoTime() - start) / 1000000 + " ms");
         if (response.getSW() != 0x9000) {
             System.out.println("Error: get public key!");
             return response;
@@ -893,13 +925,13 @@ public class SimpleAPDU {
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
         // Running on physical card
-//        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
 
         // Running in the simulator
-        runCfg.setAppletToSimulate(CardEdge.class)
-                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-                .setbReuploadApplet(true)
-                .setInstallData(new byte[8]);
+//        runCfg.setAppletToSimulate(CardEdge.class)
+//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+//                .setbReuploadApplet(true)
+//                .setInstallData(new byte[8]);
 
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
@@ -971,7 +1003,9 @@ public class SimpleAPDU {
         base += msg.length;
 
         // send apdu
+        long start = System.nanoTime();
         ResponseAPDU resSign = cardMngr.transmit(new CommandAPDU(cla, ins, p1, p2, data, le));
+        System.out.println("Time measurement: " + (System.nanoTime() - start) / 1000000 + " ms");
         byte[] signature = resSign.getData();
 
         // 6. parse signature
