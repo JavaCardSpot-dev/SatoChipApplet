@@ -37,7 +37,7 @@ public class AppletTest {
 
     @Test
     public void setup() throws Exception {
-        final ResponseAPDU responseAPDU = SimpleAPDU.testSetupCommand();
+        final ResponseAPDU responseAPDU = SimpleAPDU.testSetupCommand(true);
         Assert.assertNotNull(responseAPDU);
         Assert.assertEquals(0x9000, responseAPDU.getSW());
         Assert.assertNotNull(responseAPDU.getBytes());
@@ -45,7 +45,7 @@ public class AppletTest {
 
     @Test
     public void cardPIN() throws Exception {
-        final ResponseAPDU responseAPDU = SimpleAPDU.testCardPIN();
+        final ResponseAPDU responseAPDU = SimpleAPDU.testCardPIN(true);
         Assert.assertNotNull(responseAPDU);
         Assert.assertEquals(0x9000, responseAPDU.getSW());
         Assert.assertNotNull(responseAPDU.getBytes());
@@ -53,7 +53,7 @@ public class AppletTest {
 
     @Test
     public void createObject() throws Exception {
-        final ResponseAPDU responseAPDU = SimpleAPDU.testObjectManager();
+        final ResponseAPDU responseAPDU = SimpleAPDU.testObjectManager(true);
         Assert.assertNotNull(responseAPDU);
         Assert.assertEquals(0x9000, responseAPDU.getSW());
         Assert.assertNotNull(responseAPDU.getBytes());
@@ -61,7 +61,7 @@ public class AppletTest {
 
     @Test
     public void getCardStatus() throws Exception {
-        final ResponseAPDU responseAPDU = SimpleAPDU.testCardGetStatus();
+        final ResponseAPDU responseAPDU = SimpleAPDU.testCardGetStatus(true);
         Assert.assertNotNull(responseAPDU);
         Assert.assertEquals(0x9000, responseAPDU.getSW());
         Assert.assertNotNull(responseAPDU.getBytes());
@@ -69,7 +69,7 @@ public class AppletTest {
 
     @Test
     public void CardBip32ImportSeed() throws Exception {
-        final ResponseAPDU responseAPDU = SimpleAPDU.testCardBip32ImportSeed();
+        final ResponseAPDU responseAPDU = SimpleAPDU.testCardBip32ImportSeed(true);
         Assert.assertNotNull(responseAPDU);
         Assert.assertEquals(0x9000, responseAPDU.getSW());
         Assert.assertNotNull(responseAPDU.getBytes());
@@ -77,7 +77,7 @@ public class AppletTest {
 
     @Test
     public void CardBip32GetAythentiKey() throws Exception {
-        final ResponseAPDU responseAPDU = SimpleAPDU.testCardBip32GetAuthentiKey();
+        final ResponseAPDU responseAPDU = SimpleAPDU.testCardBip32GetAuthentiKey(true);
         Assert.assertNotNull(responseAPDU);
         Assert.assertEquals(0x9000, responseAPDU.getSW());
         Assert.assertNotNull(responseAPDU.getBytes());
@@ -85,14 +85,14 @@ public class AppletTest {
 
     @Test
     public void testEqualsKeys() throws Exception {
-        ResponseAPDU resAuthKey = SimpleAPDU.testCardBip32ImportSeed();
+        ResponseAPDU resAuthKey = SimpleAPDU.testCardBip32ImportSeed(true);
         Assert.assertNotNull(resAuthKey);
         Assert.assertEquals(0x9000, resAuthKey.getSW());
         Assert.assertNotNull(resAuthKey.getBytes());
         CardDataParser.PubKeyData parser = new CardDataParser.PubKeyData();
         byte[] authentikey = parser.parseBip32ImportSeed(resAuthKey.getData()).authentikey;
 
-        ResponseAPDU resRecKey = SimpleAPDU.testCardBip32GetAuthentiKey();
+        ResponseAPDU resRecKey = SimpleAPDU.testCardBip32GetAuthentiKey(true);
         Assert.assertNotNull(resRecKey);
         Assert.assertEquals(0x9000, resRecKey.getSW());
         Assert.assertNotNull(resRecKey.getBytes());
@@ -104,7 +104,7 @@ public class AppletTest {
 
     @Test
     public void CardImportKey() throws Exception {
-        final ResponseAPDU responseAPDU = SimpleAPDU.testCardImportKey();
+        final ResponseAPDU responseAPDU = SimpleAPDU.testCardImportKey(true);
         Assert.assertNotNull(responseAPDU);
         Assert.assertEquals(0x9000, responseAPDU.getSW());
         Assert.assertNotNull(responseAPDU.getBytes());
@@ -112,7 +112,7 @@ public class AppletTest {
 
     @Test
     public void GetPublicKeyFromPrivate() throws Exception {
-        final ResponseAPDU responseAPDU = SimpleAPDU.testGetPublicKeyFromPrivate((byte) 0x06);
+        final ResponseAPDU responseAPDU = SimpleAPDU.testGetPublicKeyFromPrivate((byte) 0x06, true);
         Assert.assertNotNull(responseAPDU);
         Assert.assertEquals(0x9000, responseAPDU.getSW());
         Assert.assertNotNull(responseAPDU.getBytes());
@@ -122,7 +122,7 @@ public class AppletTest {
     public void CardSignMessage() throws Exception {
         String strmsg= "abcdefghijklmnopqrstuvwxyz0123456789";
         byte std_keynbr= 0x06;
-        final ResponseAPDU responseAPDU = SimpleAPDU.testCardSignMessage(strmsg, std_keynbr);
+        final ResponseAPDU responseAPDU = SimpleAPDU.testCardSignMessage(strmsg, std_keynbr, true);
         Assert.assertNotNull(responseAPDU);
         Assert.assertEquals(0x9000, responseAPDU.getSW());
         Assert.assertNotNull(responseAPDU.getBytes());
@@ -132,7 +132,7 @@ public class AppletTest {
     public void CardSignEmptyMessage() throws Exception {
         String strmsg_long="";
         byte std_keynbr= 0x06;
-        final ResponseAPDU responseAPDU = SimpleAPDU.testCardSignMessage(strmsg_long, std_keynbr);
+        final ResponseAPDU responseAPDU = SimpleAPDU.testCardSignMessage(strmsg_long, std_keynbr, true);
         Assert.assertNotNull(responseAPDU);
         Assert.assertEquals(0x9000, responseAPDU.getSW());
         Assert.assertNotNull(responseAPDU.getBytes());

@@ -42,24 +42,24 @@ public class SimpleAPDU {
             // testCardBip32GetAuthentiKey();
             // testCardImportKey();
             // testGetPublicKeyFromPrivate((byte) 0x06);
-            testCardSignMessage();
+            testCardSignMessage(true);
         } catch (Exception ex) {
             System.out.println("Exception : " + ex);
         }
     }
 
-    public static ResponseAPDU testSetupCommand() throws Exception {
+    public static ResponseAPDU testSetupCommand(boolean runOnSim) throws Exception {
         final CardManager cardMngr = new CardManager(true, APPLET_AID_BYTE);
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
-        // Running on physical card
-        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
-
-        // Running in the simulator
-//        runCfg.setAppletToSimulate(CardEdge.class)
-//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-//                .setbReuploadApplet(true)
-//                .setInstallData(new byte[8]);
+        if (runOnSim) {
+            runCfg.setAppletToSimulate(CardEdge.class)
+                    .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+                    .setbReuploadApplet(true)
+                    .setInstallData(new byte[8]);
+        } else {
+            runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        }
 
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
@@ -76,18 +76,18 @@ public class SimpleAPDU {
         return response;
     }
 
-    public static ResponseAPDU testCardPIN() throws Exception {
+    public static ResponseAPDU testCardPIN(boolean runOnSim) throws Exception {
         final CardManager cardMngr = new CardManager(true, APPLET_AID_BYTE);
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
-        // Running on physical card
-        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
-
-        // Running in the simulator
-//        runCfg.setAppletToSimulate(CardEdge.class)
-//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-//                .setbReuploadApplet(true)
-//                .setInstallData(new byte[8]);
+        if (runOnSim) {
+            runCfg.setAppletToSimulate(CardEdge.class)
+                    .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+                    .setbReuploadApplet(true)
+                    .setInstallData(new byte[8]);
+        } else {
+            runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        }
 
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
@@ -216,18 +216,18 @@ public class SimpleAPDU {
         return response;
     }
 
-    public static ResponseAPDU testObjectManager() throws Exception {
+    public static ResponseAPDU testObjectManager(boolean runOnSim) throws Exception {
         final CardManager cardMngr = new CardManager(true, APPLET_AID_BYTE);
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
-        // Running on physical card
-        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
-
-        // Running in the simulator
-//        runCfg.setAppletToSimulate(CardEdge.class)
-//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-//                .setbReuploadApplet(true)
-//                .setInstallData(new byte[8]);
+        if (runOnSim) {
+            runCfg.setAppletToSimulate(CardEdge.class)
+                    .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+                    .setbReuploadApplet(true)
+                    .setInstallData(new byte[8]);
+        } else {
+            runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        }
 
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
@@ -337,18 +337,18 @@ public class SimpleAPDU {
         return response;
     }
 
-    public static ResponseAPDU testCardGetStatus() throws Exception {
+    public static ResponseAPDU testCardGetStatus(boolean runOnSim) throws Exception {
         final CardManager cardMngr = new CardManager(true, APPLET_AID_BYTE);
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
-        // Running on physical card
-        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
-
-        // Running in the simulator
-//        runCfg.setAppletToSimulate(CardEdge.class)
-//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-//                .setbReuploadApplet(true)
-//                .setInstallData(new byte[8]);
+        if (runOnSim) {
+            runCfg.setAppletToSimulate(CardEdge.class)
+                    .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+                    .setbReuploadApplet(true)
+                    .setInstallData(new byte[8]);
+        } else {
+            runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        }
 
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
@@ -412,18 +412,18 @@ public class SimpleAPDU {
         return response;
     }
 
-    public static ResponseAPDU testCardBip32ImportSeed() throws Exception {
+    public static ResponseAPDU testCardBip32ImportSeed(boolean runOnSim) throws Exception {
         final CardManager cardMngr = new CardManager(true, APPLET_AID_BYTE);
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
-        // Running on physical card
-        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
-
-        // Running in the simulator
-//        runCfg.setAppletToSimulate(CardEdge.class)
-//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-//                .setbReuploadApplet(true)
-//                .setInstallData(new byte[8]);
+        if (runOnSim) {
+            runCfg.setAppletToSimulate(CardEdge.class)
+                    .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+                    .setbReuploadApplet(true)
+                    .setInstallData(new byte[8]);
+        } else {
+            runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        }
 
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
@@ -514,18 +514,18 @@ public class SimpleAPDU {
         return response;
     }
 
-    public static ResponseAPDU testCardBip32GetAuthentiKey() throws Exception {
+    public static ResponseAPDU testCardBip32GetAuthentiKey(boolean runOnSim) throws Exception {
         final CardManager cardMngr = new CardManager(true, APPLET_AID_BYTE);
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
-        // Running on physical card
-        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
-
-        // Running in the simulator
-//        runCfg.setAppletToSimulate(CardEdge.class)
-//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-//                .setbReuploadApplet(true)
-//                .setInstallData(new byte[8]);
+        if (runOnSim) {
+            runCfg.setAppletToSimulate(CardEdge.class)
+                    .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+                    .setbReuploadApplet(true)
+                    .setInstallData(new byte[8]);
+        } else {
+            runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        }
 
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
@@ -559,7 +559,7 @@ public class SimpleAPDU {
         }
 
         // 3. Initialize seed (from previous test)
-        ResponseAPDU resAuthKey = testCardBip32ImportSeed();
+        ResponseAPDU resAuthKey = testCardBip32ImportSeed(runOnSim);
         if (resAuthKey.getSW() != 0x9000) {
             System.out.println("Error: initialize seed (from test)");
             return resAuthKey;
@@ -598,35 +598,35 @@ public class SimpleAPDU {
         return response;
     }
 
-    public static ResponseAPDU testCardImportKey() throws Exception {
+    public static ResponseAPDU testCardImportKey(boolean runOnSim) throws Exception {
         // Card import key
         System.out.println("cardImportKey");
 
-        testImportKey((byte) 4, (byte) 0x01, (short) 512);
-        testImportKey((byte) 5, (byte) 0x02, (short) 512);
-        testImportKey((byte) 4, (byte) 0x03, (short) 512);
-        testImportKey((byte) 12, (byte) 0x06, (short) 256);
+        testImportKey((byte) 4, (byte) 0x01, (short) 512, runOnSim);
+        testImportKey((byte) 5, (byte) 0x02, (short) 512, runOnSim);
+        testImportKey((byte) 4, (byte) 0x03, (short) 512, runOnSim);
+        testImportKey((byte) 12, (byte) 0x06, (short) 256, runOnSim);
 
-        testGetPublicKeyFromPrivate((byte) 0x06);
+        testGetPublicKeyFromPrivate((byte) 0x06, runOnSim);
 
-        testImportKey((byte) 3, (byte) 0x0A, (short) 64);
-        testImportKey((byte) 3, (byte) 0x0B, (short) 128);
-        testImportKey((byte) 3, (byte) 0x0C, (short) 192);
-        testImportKey((byte) 3, (byte) 0x0D, (short) 128);
-        testImportKey((byte) 3, (byte) 0x0E, (short) 192);
-        testImportKey((byte) 3, (byte) 0x0F, (short) 256);
+        testImportKey((byte) 3, (byte) 0x0A, (short) 64, runOnSim);
+        testImportKey((byte) 3, (byte) 0x0B, (short) 128, runOnSim);
+        testImportKey((byte) 3, (byte) 0x0C, (short) 192, runOnSim);
+        testImportKey((byte) 3, (byte) 0x0D, (short) 128, runOnSim);
+        testImportKey((byte) 3, (byte) 0x0E, (short) 192, runOnSim);
+        testImportKey((byte) 3, (byte) 0x0F, (short) 256, runOnSim);
 
         final CardManager cardMngr = new CardManager(true, APPLET_AID_BYTE);
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
-        // Running on physical card
-        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
-
-        // Running in the simulator
-//        runCfg.setAppletToSimulate(CardEdge.class)
-//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-//                .setbReuploadApplet(true)
-//                .setInstallData(new byte[8]);
+        if (runOnSim) {
+            runCfg.setAppletToSimulate(CardEdge.class)
+                    .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+                    .setbReuploadApplet(true)
+                    .setInstallData(new byte[8]);
+        } else {
+            runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        }
 
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
@@ -676,18 +676,18 @@ public class SimpleAPDU {
         return response;
     }
 
-    public static ResponseAPDU testImportKey(byte key_type, byte key_nbr, short key_size) throws Exception {
+    public static ResponseAPDU testImportKey(byte key_type, byte key_nbr, short key_size, boolean runOnSim) throws Exception {
         final CardManager cardMngr = new CardManager(true, APPLET_AID_BYTE);
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
-        // Running on physical card
-        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
-
-        // Running in the simulator
-//        runCfg.setAppletToSimulate(CardEdge.class)
-//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-//                .setbReuploadApplet(true)
-//                .setInstallData(new byte[8]);
+        if (runOnSim) {
+            runCfg.setAppletToSimulate(CardEdge.class)
+                    .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+                    .setbReuploadApplet(true)
+                    .setInstallData(new byte[8]);
+        } else {
+            runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        }
 
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
@@ -826,19 +826,18 @@ public class SimpleAPDU {
         return response;
     }
 
-    public static ResponseAPDU testGetPublicKeyFromPrivate(byte keynbr) throws Exception {
+    public static ResponseAPDU testGetPublicKeyFromPrivate(byte keynbr, boolean runOnSim) throws Exception {
         final CardManager cardMngr = new CardManager(true, APPLET_AID_BYTE);
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
-        // Running on physical card
-        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
-
-        // Running in the simulator
-//        runCfg.setAppletToSimulate(CardEdge.class)
-//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-//                .setbReuploadApplet(true)
-//                .setInstallData(new byte[8]);
-
+        if (runOnSim) {
+            runCfg.setAppletToSimulate(CardEdge.class)
+                    .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+                    .setbReuploadApplet(true)
+                    .setInstallData(new byte[8]);
+        } else {
+            runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        }
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
             return null;
@@ -871,7 +870,7 @@ public class SimpleAPDU {
         }
 
         // 3. import key
-        res = testImportKey((byte) 12, (byte) 0x06, (short) 256);
+        res = testImportKey((byte) 12, (byte) 0x06, (short) 256, runOnSim);
         if (res.getSW() != 0x9000) {
             System.out.println("Error: import key!");
             return res;
@@ -907,31 +906,31 @@ public class SimpleAPDU {
         return response;
     }
 
-    public static void testCardSignMessage() throws Exception {
+    public static void testCardSignMessage(boolean runOnSim) throws Exception {
         System.out.println("cardSignMessage");
 
         String strmsg = "abcdefghijklmnopqrstuvwxyz0123456789";
         String strmsg_long = "";
         byte std_keynbr = 0x06;//0x00;
 
-        testCardSignMessage(strmsg, std_keynbr);
-        testCardSignMessage(strmsg_long, std_keynbr);
+        testCardSignMessage(strmsg, std_keynbr, runOnSim);
+        testCardSignMessage(strmsg_long, std_keynbr, runOnSim);
 
         // todo sign message test for long message
     }
 
-    public static ResponseAPDU testCardSignMessage(String strmsg, byte keynbr) throws Exception {
+    public static ResponseAPDU testCardSignMessage(String strmsg, byte keynbr, boolean runOnSim) throws Exception {
         final CardManager cardMngr = new CardManager(true, APPLET_AID_BYTE);
         final RunConfig runCfg = RunConfig.getDefaultConfig();
 
-        // Running on physical card
-        runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
-
-        // Running in the simulator
-//        runCfg.setAppletToSimulate(CardEdge.class)
-//                .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
-//                .setbReuploadApplet(true)
-//                .setInstallData(new byte[8]);
+        if (runOnSim) {
+            runCfg.setAppletToSimulate(CardEdge.class)
+                    .setTestCardType(RunConfig.CARD_TYPE.JCARDSIMLOCAL)
+                    .setbReuploadApplet(true)
+                    .setInstallData(new byte[8]);
+        } else {
+            runCfg.setTestCardType(RunConfig.CARD_TYPE.PHYSICAL);
+        }
 
         System.out.print("Connecting to card...");
         if (!cardMngr.Connect(runCfg)) {
@@ -965,14 +964,14 @@ public class SimpleAPDU {
         }
 
         // 3. import key
-        res = testImportKey((byte) 12, (byte) 0x06, (short) 256);
+        res = testImportKey((byte) 12, (byte) 0x06, (short) 256, runOnSim);
         if (res.getSW() != 0x9000) {
             System.out.println("Error: import key!");
             return res;
         }
 
         // 4. recover pubkey
-        ResponseAPDU response = testGetPublicKeyFromPrivate(keynbr);
+        ResponseAPDU response = testGetPublicKeyFromPrivate(keynbr, runOnSim);
         if (response.getSW() != 0x9000) {
             System.out.println("Error: get private key!");
             return response;
